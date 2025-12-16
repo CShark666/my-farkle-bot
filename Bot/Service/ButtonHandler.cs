@@ -7,11 +7,13 @@ namespace Bot
     {
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
+        private readonly Random _random;
         private Dictionary<InlineBtnsActions, IButtonsHandler> _btnHandler = [];
-        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot)
+        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random)
         {
             _logger = logger;
             _bot = bot;
+            _random = random;
             RegisterButtons();
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
@@ -28,6 +30,7 @@ namespace Bot
         {
             _btnHandler[InlineBtnsActions.HelloFirst] = new HelloButtonHandler(_bot);
             _btnHandler[InlineBtnsActions.HelloSecond] = new HelloButtonHandler(_bot);
+            _btnHandler[InlineBtnsActions.DicesTesting] = new PlayBtnHandler(_bot, _random);
         }
     }
 }

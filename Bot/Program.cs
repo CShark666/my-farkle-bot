@@ -11,6 +11,8 @@ var webhookUrl = builder.Configuration["TelegramBot:WebhookUrl"];
 builder.Services.AddHttpClient("tgwebhook")
     .AddTypedClient(httpClient => new TelegramBotClient(botToken!, httpClient));
 
+builder.Services.AddSingleton<Random>();
+
 builder.Services.AddScoped<CallbackData>();
 builder.Services.AddScoped<CommandsHandler>();
 builder.Services.AddScoped<UpdateHandler>();

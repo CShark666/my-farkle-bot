@@ -3,15 +3,17 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class HelloCommandHandler(ITelegramBotClient bot, CallbackData callbackDataCodec) : ICommandHandler
+    public class HelloCommandHandler(ITelegramBotClient bot, CallbackData callbackData) : ICommandHandler
     {
         private readonly ITelegramBotClient _bot = bot;
+        private readonly CallbackData _callbackData = callbackData;
+
         public async Task HandleCommandAsync(User user)
         {
             var msg = "Hiiiii!!!Helow!!!!!!!!";
             InlineKeyboardMarkup inlineKeyboardMarkup =new();
-            var first_btn = callbackDataCodec.EncodeToString(InlineBtnsActions.HelloFirst, user.ChatId, user.UserId);
-            var second_btn = callbackDataCodec.EncodeToString(InlineBtnsActions.HelloSecond, user.ChatId, user.UserId);
+            var first_btn = _callbackData.EncodeToString(InlineBtnsActions.HelloFirst, user.ChatId, user.UserId);
+            var second_btn = _callbackData.EncodeToString(InlineBtnsActions.HelloSecond, user.ChatId, user.UserId);
 
 
                 inlineKeyboardMarkup = new([

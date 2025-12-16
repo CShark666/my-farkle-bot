@@ -7,13 +7,15 @@ namespace Bot
     {
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
-        private readonly CallbackData _callbackDataCodec;
+        private readonly CallbackData _callbackData;
+        private readonly Random _random;
         private Dictionary<string, ICommandHandler> _cmdHandler = [];
-        public CommandsHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, CallbackData callbackDataCodec)
+        public CommandsHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, CallbackData callbackData, Random random)
         {
             _logger = logger;
             _bot = bot;
-            _callbackDataCodec = callbackDataCodec;
+            _callbackData = callbackData;
+            _random = random;
             RegisterCommands();
         }
         public async Task HandleCommandsAsync(string msgText, User user)
@@ -30,7 +32,8 @@ namespace Bot
         }
         private void RegisterCommands()
         {
-            _cmdHandler["/hello"] = new HelloCommandHandler(_bot,_callbackDataCodec);
+            _cmdHandler["/hello"] = new HelloCommandHandler(_bot,_callbackData);
+            _cmdHandler["/play"] = new PlayCmdHandler(_bot, _callbackData, _random);
         }
     }
 }
