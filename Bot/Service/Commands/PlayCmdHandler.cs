@@ -14,15 +14,14 @@ namespace Bot
             int[] dices = new int[6];
             InlineKeyboardMarkup inlineKeyboardMarkup = new();
 
-            foreach (var dice in dices)
+            for(int i = 0; i < dices.Length; i++)
             {
-                dices[dice] = _random.Next(1, 7);
+                dices[i] = _random.Next(1, 7);
             }
 
             for (int i = 0; i < dices.Length; i++)
             {
-                dices[i] = _random.Next(1, 7);
-                var callbackData = _callbackData.EncodeToString(InlineBtnsActions.DicesTesting, user.ChatId, user.UserId);
+                var callbackData = _callbackData.DiceEncodeToString(InlineBtnsActions.DicesTesting, user.ChatId, user.UserId, dices);
                 inlineKeyboardMarkup.AddButton(
                     InlineKeyboardButton.WithCallbackData(
                         $"{dices[i]} ⏹️",

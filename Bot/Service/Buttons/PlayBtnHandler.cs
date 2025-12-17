@@ -10,9 +10,17 @@ namespace Bot
         private readonly Random _random = random;
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            var msg = $"You chose {callbackData.Action}";
+            callbackData.DecodeDiceFromString(query.Data!);
+            int[] dices = callbackData.Dices;
+            InlineKeyboardMarkup inlineKeyboardMarkup = new();
+
+            var msg = $"2 {callbackData.Action}";
+            for (int i = 0; i < dices.Length; i++)
+            {
+                inlineKeyboardMarkup.AddButton($"{dices[i]} 🔄");
+            }
             await _bot.AnswerCallbackQuery(query.Id, msg);
-            await _bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg);
+            await _bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: inlineKeyboardMarkup);
         }
     }
 }

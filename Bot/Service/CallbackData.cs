@@ -2,11 +2,12 @@ namespace Bot
 {
     public class CallbackData
     {
+        public InlineBtnsActions Action;
         public long ChatId;
         public long UserId;
-        public InlineBtnsActions Action;
+        public int[] Dices = new int[6];
         private char encodeChar = '*';
-        public string EncodeToString(InlineBtnsActions actions,long chatId, long userId)
+        public string EncodeToString(InlineBtnsActions actions, long chatId, long userId)
             => $"{actions}{encodeChar}{chatId}{encodeChar}{userId}";
         public void DecodeFromString(string encodedString)
         {
@@ -14,6 +15,23 @@ namespace Bot
             Action = Enum.Parse<InlineBtnsActions>(parts[0], true);
             UserId = long.Parse(parts[1]);
             ChatId = long.Parse(parts[2]);
+        }
+        public string DiceEncodeToString(InlineBtnsActions actions, long chatId, long userId, int[] dices)
+        {
+            var dicesString = string.Join(encodeChar, dices);
+            var str = $"{actions}{encodeChar}{chatId}{encodeChar}{userId}{encodeChar}{dicesString}";
+            return str;
+        }
+        public void DecodeDiceFromString(string encodedString)
+        {
+            string[] callbackDataParts = encodedString.Split(encodeChar);
+            var partsIndex = 3;
+
+            for (int i = 0; i < 6; i++)
+            {
+                Dices[i] = int.Parse(callbackDataParts[partsIndex]);
+                partsIndex++;
+            }
         }
     }
 }
