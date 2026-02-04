@@ -4,48 +4,85 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class PlayBtnHandler(ITelegramBotClient bot, Random random) : IButtonsHandler
+    public class PlayBtnHandler(ITelegramBotClient bot) : IButtonsHandler
     {
-        private readonly ITelegramBotClient _bot = bot;
-        private readonly Random _random = random;
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            callbackData.DecodeDiceFromString(query.Data!);
-            int[] dices = callbackData.Dices;
-            // InlineKeyboardMarkup inlineKeyboardMarkup = new();
-            var btnsCounter = 0;
+            callbackData.Decode(query.Data!, out var actionsType, out var chatId, out var userId,
+            out var buttonId, out var dices, out var selectedDices);
 
-            var msg = $"Ви обрали {callbackData.ChosenDiceValue}";
-            // for (int i = 0; i < dices.Length; i++)
-            // {
-            //     var newCallbackData = callbackData.DiceEncodeToString(InlineBtnsActions.DicesTesting, callbackData.ChatId, callbackData.UserId, dices, dices[i]);
-            //     var btnText = $"{dices[i]} 🔄";
+            var msg = $"Ви обрали {dices[buttonId]} | {string.Join(',', selectedDices)}";
+            var newButtons = new InlineKeyboardMarkup();
 
-            //     if (dices[i] == callbackData.ChosenDiceValue)
-            //     {
-            //         btnText = $"{dices[i]} ⏹️";
-            //     }
-            //     if (btnsCounter % 3 != 0)
-            //     {
-            //         inlineKeyboardMarkup.AddButton(
-            //             InlineKeyboardButton.WithCallbackData(
-            //                 btnText,
-            //                 newCallbackData));
-            //     }
-            //     else
-            //     {
-            //         inlineKeyboardMarkup.AddNewRow(
-            //             InlineKeyboardButton.WithCallbackData(
-            //                 btnText,
-            //                 newCallbackData));
-            //     }
-            //     btnsCounter++;
-            // }
-            var builder = new BuilderInlineKeyboardMarkups(callbackData);
-            var inlineKeyboardMarkup = builder.BuildDiceKeyboard(dices, callbackData.ChatId, callbackData.UserId);
+            for (int i = 0; i < dices.Length; i++)
+            {
+                var text = string.Empty;
+                List<int> newSelected = new List<int>(selectedDices); 
+                
+                if (selectedDices.Contains(i))
+                {
+                    text = $"{dices[i]} ✅";
+                }
+                else
+                {
+                    text = $"{dices[i]} 🔄";
+                    newSelected.Add(i);
+                }
+                var newCallbackData = callbackData.DiceEncodeToString(
+                    InlineBtnsActionsType.DicesTesting,
+                    chatId,
+                    userId,
+                    buttonId: i,
+                    dices,
+                    newSelected
+                );
 
-            await _bot.AnswerCallbackQuery(query.Id, msg);
-            await _bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: inlineKeyboardMarkup);
+                var button = InlineKeyboardButton.WithCallbackData(
+                    text, newCallbackData);
+                if (i % 3 == 0)
+                    newButtons.AddNewRow(button);
+                else
+                    newButtons.AddButton(button);
+            }
+            await bot.AnswerCallbackQuery(query.Id, msg);
+            await bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: newButtons);
+            // await bot.SendMessage(chatId, $"dices: {string.Join(',', dices)} | selectedIds: {string.Join(',',selectedDices)}"); 
         }
     }
 }
+
+//         InlineKeyboardButton[] newButtons =
+//              Enumerable.Range(0, 6)
+//                  .Select(i =>
+//                  {
+//                      // var isSelected = selectedDices.Contains(i);
+//                      // var text = isSelected
+//                      //     ? $"{dices[i]} ✅"
+//                      //     : $"{dices[i]} 🔄";
+                
+//                      // selectedDices.Add(i);
+                
+//                      var text = string.Empty;
+//                      var newSelected = selectedDices;
+//                      if(selectedDices.Contains(i))
+//                      {
+//                          text =  $"{dices[i]} ✅";
+//                      }
+//                      else
+//                      {
+//                          text = $"{dices[i]} 🔄";
+//                          newSelected.Add(i);
+//                      }
+//                      return InlineKeyboardButton.WithCallbackData(
+//                          text,
+//                          callbackData.DiceEncodeToString(
+//                              InlineBtnsActionsType.DicesTesting,
+//                              chatId,
+//                              userId,
+//                              buttonId: i,
+//                              dices,
+//                              newSelected
+//                          )
+//                      );
+//                  })
+//                  .ToArray();

@@ -2,39 +2,54 @@ namespace Bot
 {
     public class CallbackData
     {
-        public InlineBtnsActions Action;
+        public InlineBtnsActionsType Action;
         public long ChatId;
         public long UserId;
-        public int[] Dices = new int[6];
-        public int ChosenDiceValue;
-        private char encodeChar = '*';
-        public string EncodeToString(InlineBtnsActions actions, long chatId, long userId)
+        private readonly char encodeChar = '|';
+        public string EncodeToString(InlineBtnsActionsType actions, long chatId, long userId)
             => $"{actions}{encodeChar}{chatId}{encodeChar}{userId}";
         public void DecodeFromString(string encodedString)
         {
             string[] parts = encodedString.Split(encodeChar);
-            Action = Enum.Parse<InlineBtnsActions>(parts[0], true);
-            UserId = long.Parse(parts[1]);
-            ChatId = long.Parse(parts[2]);
+            Action = Enum.Parse<InlineBtnsActionsType>(parts[0], true);
+            ChatId = long.Parse(parts[1]);
+            UserId = long.Parse(parts[2]);
         }
-        public string DiceEncodeToString(InlineBtnsActions actions, long chatId, long userId, int[] dices, int chosenDiceValue)
+        public string DiceEncodeToString(
+            InlineBtnsActionsType actionsType,
+            long chatId,
+            long userId,
+            int buttonId,
+            int[] dices,
+            List<int> selected)
         {
-            var dicesString = string.Join(encodeChar, dices);
-            var str = $"{actions}{encodeChar}{chatId}{encodeChar}{userId}{encodeChar}{dicesString}{encodeChar}{chosenDiceValue}";
-            return str;
+            return string.Join('|',
+                (int)actionsType,
+                chatId,
+                userId,
+                buttonId,
+                string.Join(',', dices),
+                selected is { Count: > 0 } ? string.Join(',', selected) : "");
         }
-        public void DecodeDiceFromString(string encodedString)
+        public void Decode(
+            string data,
+            out InlineBtnsActionsType actionsType,
+            out long chatId,
+            out long userId,
+            out int btnId,
+            out int[] dices,
+            out List<int> selectedDices)
         {
-            string[] callbackDataParts = encodedString.Split(encodeChar);
-            var partsIndex = 3;
+            var p = data.Split('|');
 
-            for (int i = 0; i < 6; i++)
-            {
-                Dices[i] = int.Parse(callbackDataParts[partsIndex]);
-                partsIndex++;
-            }
-
-            ChosenDiceValue = int.Parse(callbackDataParts[partsIndex]);
+            actionsType = (InlineBtnsActionsType)int.Parse(p[0]);
+            chatId = long.Parse(p[1]);
+            userId = long.Parse(p[2]);
+            btnId = int.Parse(p[3]);
+            dices = p[4].Split(',').Select(int.Parse).ToArray();
+            selectedDices = !string.IsNullOrEmpty(p[5])
+                ? p[5].Split(',').Select(int.Parse).ToList<int>()
+                : [];
         }
     }
 }

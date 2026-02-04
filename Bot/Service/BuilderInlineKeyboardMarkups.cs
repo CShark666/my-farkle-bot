@@ -5,20 +5,23 @@ namespace Bot
     public class BuilderInlineKeyboardMarkups(CallbackData callbackData)
     {
         private readonly CallbackData _callbackData = callbackData;
-        public InlineKeyboardMarkup BuildDiceKeyboard(int[] dices, long chatId, long userId, int? selectedDice = null)
+        public InlineKeyboardMarkup BuildDiceKeyboard(int[] dices, long chatId, long userId)
         {
             var keyboard = new InlineKeyboardMarkup();
             for (int i = 0; i < dices.Length; i++)
             {
+                List<int> selectedDice = [i];
+
                 var callbackData = _callbackData.DiceEncodeToString(
-                    InlineBtnsActions.DicesTesting,
+                    InlineBtnsActionsType.DicesTesting,
                     chatId,
                     userId,
+                    i,
                     dices,
-                    dices[i]
+                    selectedDice!
                 );
 
-                var emoji = dices[i] == selectedDice ? "⏹️" : "🔄";
+                var emoji = "🔄";
                 var button = InlineKeyboardButton.WithCallbackData(
                     $"{dices[i]}{emoji}",
                     callbackData);
@@ -28,6 +31,7 @@ namespace Bot
                 else
                     keyboard.AddButton(button);
             }
+            keyboard.AddNewRow().AddButton(InlineKeyboardButton.WithCallbackData("Перекинути", "null"));
             return keyboard;
         }
     }
