@@ -1,35 +1,34 @@
 using Bot;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
-var builder = WebApplication.CreateBuilder(args);
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
 
-var botToken = builder.Configuration["TelegramBot:Token"];
-var webhookUrl = builder.Configuration["TelegramBot:WebhookUrl"];
+        var botApi = config["TelegramBot:Token"];
 
-builder.Services.AddHttpClient("tgwebhook")
-    .AddTypedClient(httpClient => new TelegramBotClient(botToken!, httpClient));
+        services.AddSingleton(sp => new TelegramBotClient(botApi!));
 
-builder.Services.AddSingleton<Random>();
+        services.AddLogging(builder =>
+        {
+            builder.ClearProviders();
+            builder.AddConsole();
+        });
 
-builder.Services.AddScoped<CallbackData>();
-builder.Services.AddScoped<CommandsHandler>();
-builder.Services.AddScoped<UpdateHandler>();
-builder.Services.AddScoped<ButtonHandler>();
+        services.AddSingleton<Random>();
+        services.AddSingleton<DiceService>();
+        services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
+        
+        services.AddScoped<CallbackData>();
+        services.AddScoped<CommandsHandler>();
+        services.AddScoped<ButtonHandler>();
 
-var app = builder.Build();
+        services.AddHostedService<BotService>();
+    })
+    .Build();
 
-app.MapGet("/bot/setWebhook", async (TelegramBotClient bot) =>
-{
-    await bot.SetWebhook(webhookUrl!);
-    return $"Webhook set to {webhookUrl}";
-});
-
-app.MapPost("/bot", async(TelegramBotClient bot, Update update, UpdateHandler updateHandler) =>
-{
-    await updateHandler.OnUpdateAsync(bot, update);
-    return Results.Ok();
-});
-
-app.Run();
-
+await host.RunAsync();

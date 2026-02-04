@@ -15,5 +15,7 @@ namespace Bot
             UserName = userName;
             FirstName = firstName;
         }
+
+        public override string ToString() => $"[chatId: {ChatId} userId: {UserId}] {UserName} {FirstName}";
     }
 }
