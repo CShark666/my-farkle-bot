@@ -17,8 +17,8 @@ namespace Bot
             int[] dices = new int[6];
             dices = _diceService.ThrowDices(dices);
             
-            var builder = new BuilderInlineKeyboardMarkups(_callbackData);
-            var inlineKeyboardMarkup = builder.BuildDiceKeyboard(dices, user.ChatId, user.UserId);
+            var builder = new DiceKeyboardFactory(_callbackData);
+            var inlineKeyboardMarkup = builder.BuildDiceSelectionKeyboard(dices, user.ChatId, user.UserId);
             
             await _bot.SendMessage(user.ChatId, msg, replyMarkup: inlineKeyboardMarkup);
         }

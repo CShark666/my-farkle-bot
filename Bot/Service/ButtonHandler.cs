@@ -8,9 +8,9 @@ namespace Bot
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
         private readonly Random _random;
-        private readonly BuilderInlineKeyboardMarkups _builderInlineKeyboardMarkups;
+        private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
         private Dictionary<InlineBtnsActionsType, IButtonsHandler> _btnHandler = [];
-        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random, BuilderInlineKeyboardMarkups builderInlineKeyboardMarkups)
+        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random, DiceKeyboardFactory builderInlineKeyboardMarkups)
         {
             _logger = logger;
             _bot = bot;

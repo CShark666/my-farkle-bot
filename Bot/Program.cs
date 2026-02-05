@@ -23,7 +23,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<DiceService>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
-        services.AddScoped<BuilderInlineKeyboardMarkups>();
+        services.AddScoped<DiceKeyboardFactory>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();
