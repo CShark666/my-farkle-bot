@@ -1,4 +1,5 @@
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -17,8 +18,8 @@ namespace Bot
             for (int i = 0; i < dices.Length; i++)
             {
                 var text = string.Empty;
-                List<int> newSelected = new List<int>(selectedDices); 
-                
+                List<int> newSelected = new List<int>(selectedDices);
+
                 if (selectedDices.Contains(i))
                 {
                     text = $"{dices[i]} ✅";
@@ -45,8 +46,15 @@ namespace Bot
                     newButtons.AddButton(button);
             }
             await bot.AnswerCallbackQuery(query.Id, msg);
-            await bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: newButtons);
-            // await bot.SendMessage(chatId, $"dices: {string.Join(',', dices)} | selectedIds: {string.Join(',',selectedDices)}"); 
+            try
+            {
+                await bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: newButtons);
+            }
+            catch(ApiRequestException ex)
+                when(ex.Message.Contains("message is not modified"))
+            {
+                
+            }
         }
     }
 }
@@ -59,9 +67,9 @@ namespace Bot
 //                      // var text = isSelected
 //                      //     ? $"{dices[i]} ✅"
 //                      //     : $"{dices[i]} 🔄";
-                
+
 //                      // selectedDices.Add(i);
-                
+
 //                      var text = string.Empty;
 //                      var newSelected = selectedDices;
 //                      if(selectedDices.Contains(i))
