@@ -17,18 +17,18 @@ namespace Bot
 
             for (int i = 0; i < dices.Length; i++)
             {
-                var text = string.Empty;
                 List<int> newSelected = new List<int>(selectedDices);
+                
+                var emoji = "✅";
 
-                if (selectedDices.Contains(i))
+                if (!selectedDices.Contains(i))
                 {
-                    text = $"{dices[i]} ✅";
-                }
-                else
-                {
-                    text = $"{dices[i]} 🔄";
+                    emoji = "🔄";
                     newSelected.Add(i);
                 }
+
+                var text =$"{dices[i]} {emoji}";
+
                 var newCallbackData = callbackData.DiceEncodeToString(
                     InlineBtnsActionsType.DicesTesting,
                     chatId,
@@ -45,6 +45,7 @@ namespace Bot
                 else
                     newButtons.AddButton(button);
             }
+            
             await bot.AnswerCallbackQuery(query.Id, msg);
             try
             {
