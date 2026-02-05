@@ -22,7 +22,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<Random>();
         services.AddSingleton<DiceService>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
-        
+
+        services.AddScoped<BuilderInlineKeyboardMarkups>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();

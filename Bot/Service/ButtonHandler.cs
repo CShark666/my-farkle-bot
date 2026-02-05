@@ -8,12 +8,14 @@ namespace Bot
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
         private readonly Random _random;
+        private readonly BuilderInlineKeyboardMarkups _builderInlineKeyboardMarkups;
         private Dictionary<InlineBtnsActionsType, IButtonsHandler> _btnHandler = [];
-        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random)
+        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random, BuilderInlineKeyboardMarkups builderInlineKeyboardMarkups)
         {
             _logger = logger;
             _bot = bot;
             _random = random;
+            _builderInlineKeyboardMarkups = builderInlineKeyboardMarkups;
             RegisterButtons();
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
@@ -30,7 +32,7 @@ namespace Bot
         {
             _btnHandler[InlineBtnsActionsType.HelloFirst] = new HelloButtonHandler(_bot);
             _btnHandler[InlineBtnsActionsType.HelloSecond] = new HelloButtonHandler(_bot);
-            _btnHandler[InlineBtnsActionsType.DicesTesting] = new PlayBtnHandler(_bot);
+            _btnHandler[InlineBtnsActionsType.DicesTesting] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups);
         }
     }
 }
