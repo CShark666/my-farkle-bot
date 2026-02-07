@@ -13,16 +13,16 @@ namespace Bot
 
             var msg = $"Ви обрали {dices[buttonId]} | {string.Join(',', selectedDices)}";
             var newButtons = builder.BuildDiceSelectionKeyboard(dices, chatId, userId, selectedDices);
-            
-            await bot.AnswerCallbackQuery(query.Id, msg);
+
             try
             {
+                await bot.AnswerCallbackQuery(query.Id, msg);
                 await bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg, replyMarkup: newButtons);
             }
-            catch(ApiRequestException ex)
-                when(ex.Message.Contains("message is not modified"))
+            catch (ApiRequestException ex)
+                when (ex.Message.Contains("message is not modified"))
             {
-                
+
             }
         }
     }

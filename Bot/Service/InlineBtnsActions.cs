@@ -1,10 +1,11 @@
 namespace Bot
 {
-    public enum InlineBtnsActionsType
+    public enum InlineButtonsActions
     {
         HelloFirst,
         HelloSecond,
-        DicesTesting
+        Dice,
+        Reroll
     }
     public enum Dices
     {

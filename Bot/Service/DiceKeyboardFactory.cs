@@ -30,8 +30,15 @@ namespace Bot
                 else
                     keyboard.AddButton(button);
             }
-
+            keyboard.AddNewRow(CreateRerollDiceButton(chatId, userId));
             return keyboard;
+        }
+
+        private InlineKeyboardButton CreateRerollDiceButton(long chatId, long userId)
+        {
+            var callbackData = _callbackData.EncodeToString(InlineButtonsActions.Reroll, chatId, userId);
+            var text = "Перекинути кубики";
+            return InlineKeyboardButton.WithCallbackData(text, callbackData);
         }
         private InlineKeyboardButton CreateDiceToggleButton(
             long chatId,
@@ -45,7 +52,7 @@ namespace Bot
             var newSelectedDiceIds = ToggleDiceSelection(diceIndex, currentlySelectedIndices);
             var text = $"{allDiceValues[diceIndex]} {emoji}";
             var callbackData = _callbackData.DiceEncodeToString(
-                InlineBtnsActionsType.DicesTesting,
+                InlineButtonsActions.Dice,
                 chatId,
                 userId,
                 diceIndex,

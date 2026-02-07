@@ -14,11 +14,11 @@ namespace Bot
         public async Task HandleCommandAsync(User user)
         {
             var msg = "Оберіть кубики";
-            int[] dices = new int[6];
-            dices = _diceService.ThrowDices(dices);
+            int[] dice = new int[6];
+            dice = _diceService.ThrowDice(dice);
             
             var builder = new DiceKeyboardFactory(_callbackData);
-            var inlineKeyboardMarkup = builder.BuildDiceSelectionKeyboard(dices, user.ChatId, user.UserId);
+            var inlineKeyboardMarkup = builder.BuildDiceSelectionKeyboard(dice, user.ChatId, user.UserId);
             
             await _bot.SendMessage(user.ChatId, msg, replyMarkup: inlineKeyboardMarkup);
         }
