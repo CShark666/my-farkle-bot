@@ -36,7 +36,7 @@ namespace Bot
 
         private InlineKeyboardButton CreateRerollDiceButton(long chatId, long userId)
         {
-            var callbackData = _callbackData.EncodeToString(InlineButtonsActions.Reroll, chatId, userId);
+            var callbackData = _callbackData.Serialize(CallbackActionType.Reroll, chatId, userId);
             var text = "Перекинути кубики";
             return InlineKeyboardButton.WithCallbackData(text, callbackData);
         }
@@ -51,8 +51,8 @@ namespace Bot
             var emoji = isSelected ? SelectedDiceEmoji : UnselectedDiceEmoji;
             var newSelectedDiceIds = ToggleDiceSelection(diceIndex, currentlySelectedIndices);
             var text = $"{allDiceValues[diceIndex]} {emoji}";
-            var callbackData = _callbackData.DiceEncodeToString(
-                InlineButtonsActions.Dice,
+            var callbackData = _callbackData.DiceSerialize(
+                CallbackActionType.Dice,
                 chatId,
                 userId,
                 diceIndex,

@@ -10,7 +10,7 @@ namespace Bot
         private readonly Random _random;
         private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
         private readonly DiceService _diceService;
-        private Dictionary<InlineButtonsActions, IButtonsHandler> _btnHandler = [];
+        private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
         public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random, DiceKeyboardFactory builderInlineKeyboardMarkups, DiceService diceService)
         {
             _logger = logger;
@@ -32,10 +32,10 @@ namespace Bot
         }
         private void RegisterButtons()
         {
-            _btnHandler[InlineButtonsActions.HelloFirst] = new HelloButtonHandler(_bot);
-            _btnHandler[InlineButtonsActions.HelloSecond] = new HelloButtonHandler(_bot);
-            _btnHandler[InlineButtonsActions.Dice] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups);
-            _btnHandler[InlineButtonsActions.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
+            _btnHandler[CallbackActionType.HelloFirst] = new HelloButtonHandler(_bot);
+            _btnHandler[CallbackActionType.HelloSecond] = new HelloButtonHandler(_bot);
+            _btnHandler[CallbackActionType.Dice] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups);
+            _btnHandler[CallbackActionType.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
         }
     }
 }

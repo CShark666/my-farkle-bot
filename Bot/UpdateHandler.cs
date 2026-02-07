@@ -36,7 +36,7 @@ namespace Bot
         private async Task CallbackQueryReceiver(CallbackQuery query)
         {
             var callbackData = new CallbackData();
-            callbackData.DecodeFromString(query.Data!);
+            callbackData.Deserialize(query.Data!);
 
             await _buttonHandler.HandleButtonsAsync(callbackData, query);
         }

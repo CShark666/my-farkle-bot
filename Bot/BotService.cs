@@ -66,7 +66,7 @@ namespace Bot
                 userName: update.CallbackQuery.From.Username!,
                 firstName: update.CallbackQuery.From.FirstName);
 
-            callbackData.DecodeFromString(update.CallbackQuery.Data!);
+            callbackData.Deserialize(update.CallbackQuery.Data!);
 
             _logger.LogInformation("CallbackQuery: from {user}: {text}", user, callbackData.Action);
 

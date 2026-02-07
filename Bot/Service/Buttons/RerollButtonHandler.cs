@@ -8,7 +8,7 @@ namespace Bot
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            callbackData.DecodeFromString(query.Data!);
+            callbackData.Deserialize(query.Data!);
 
             int[] dice = new int[6];
             dice = diceService.ThrowDice(dice);

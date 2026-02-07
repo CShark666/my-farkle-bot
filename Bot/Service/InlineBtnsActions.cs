@@ -1,6 +1,6 @@
 namespace Bot
 {
-    public enum InlineButtonsActions
+    public enum CallbackActionType
     {
         HelloFirst,
         HelloSecond,

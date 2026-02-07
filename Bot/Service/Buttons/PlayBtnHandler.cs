@@ -8,7 +8,7 @@ namespace Bot
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            callbackData.Decode(query.Data!, out var actionsType, out var chatId, out var userId,
+            callbackData.DiceDeserialize(query.Data!, out var actionsType, out var chatId, out var userId,
             out var buttonId, out var dices, out var selectedDices);
 
             var msg = $"Ви обрали {dices[buttonId]} | {string.Join(',', selectedDices)}";

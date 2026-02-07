@@ -12,8 +12,8 @@ namespace Bot
         {
             var msg = "Hiiiii!!!Helow!!!!!!!!";
             InlineKeyboardMarkup inlineKeyboardMarkup =new();
-            var first_btn = _callbackData.EncodeToString(InlineButtonsActions.HelloFirst, user.ChatId, user.UserId);
-            var second_btn = _callbackData.EncodeToString(InlineButtonsActions.HelloSecond, user.ChatId, user.UserId);
+            var first_btn = _callbackData.Serialize(CallbackActionType.HelloFirst, user.ChatId, user.UserId);
+            var second_btn = _callbackData.Serialize(CallbackActionType.HelloSecond, user.ChatId, user.UserId);
 
 
                 inlineKeyboardMarkup = new([
