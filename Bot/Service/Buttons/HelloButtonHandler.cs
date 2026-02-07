@@ -7,7 +7,7 @@ namespace Bot
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            var msg = $"You chose {callbackData.Action}";
+            var msg = $"You chose {callbackData.ActionType}";
             await bot.AnswerCallbackQuery(query.Id, msg);
             await bot.EditMessageText(chatId: callbackData.ChatId, messageId: query.Message!.Id, text: msg);
         }

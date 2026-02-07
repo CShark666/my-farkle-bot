@@ -2,7 +2,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class DiceKeyboardFactory(CallbackData callbackData)
+    public class DiceKeyboardFactory(CallbackData callbackData, DiceCallbackDataSerializer diceCallbackDataSerializer)
     {
         private readonly CallbackData _callbackData = callbackData;
         private const int ButtonsPerRow = 3;
@@ -51,7 +51,7 @@ namespace Bot
             var emoji = isSelected ? SelectedDiceEmoji : UnselectedDiceEmoji;
             var newSelectedDiceIds = ToggleDiceSelection(diceIndex, currentlySelectedIndices);
             var text = $"{allDiceValues[diceIndex]} {emoji}";
-            var callbackData = _callbackData.DiceSerialize(
+            var callbackData = diceCallbackDataSerializer.Serialize(
                 CallbackActionType.Dice,
                 chatId,
                 userId,

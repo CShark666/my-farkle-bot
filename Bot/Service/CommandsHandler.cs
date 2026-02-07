@@ -10,19 +10,23 @@ namespace Bot
         private readonly CallbackData _callbackData;
         private readonly Random _random;
         private readonly DiceService _diceService;
+        private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
         private Dictionary<string, ICommandHandler> _cmdHandler = [];
         public CommandsHandler(
             ILogger<CommandsHandler> logger,
             TelegramBotClient bot,
             CallbackData callbackData,
             Random random,
-            DiceService diceService)
+            DiceService diceService,
+            DiceCallbackDataSerializer diceCallbackDataSerializer)
         {
             _logger = logger;
             _bot = bot;
             _callbackData = callbackData;
             _random = random;
             _diceService = diceService;
+            _diceCallbackDataSerializer = diceCallbackDataSerializer;
+            
             RegisterCommands();
         }
         public async Task HandleCommandsAsync(string msgText, User user)
@@ -40,7 +44,7 @@ namespace Bot
         private void RegisterCommands()
         {
             _cmdHandler["/hello"] = new HelloCommandHandler(_bot,_callbackData);
-            _cmdHandler["/play"] = new PlayCmdHandler(_bot, _callbackData, _diceService);
+            _cmdHandler["/play"] = new PlayCmdHandler(_bot, _callbackData, _diceService, _diceCallbackDataSerializer);
         }
     }
 }

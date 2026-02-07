@@ -68,7 +68,7 @@ namespace Bot
 
             callbackData.Deserialize(update.CallbackQuery.Data!);
 
-            _logger.LogInformation("CallbackQuery: from {user}: {text}", user, callbackData.Action);
+            _logger.LogInformation("CallbackQuery: from {user}: {text}", user, callbackData.ActionType);
 
             await _buttonHandler.HandleButtonsAsync(callbackData, update.CallbackQuery);
         }

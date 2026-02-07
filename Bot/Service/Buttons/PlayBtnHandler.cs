@@ -4,11 +4,14 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class PlayBtnHandler(ITelegramBotClient bot, DiceKeyboardFactory builder) : IButtonsHandler
+    public class PlayBtnHandler(
+        ITelegramBotClient bot,
+        DiceKeyboardFactory builder,
+        DiceCallbackDataSerializer diceCallbackDataSerializer) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            callbackData.DiceDeserialize(query.Data!, out var actionsType, out var chatId, out var userId,
+            diceCallbackDataSerializer.Deserialize(query.Data!,out var actionsType, out var chatId, out var userId,
             out var buttonId, out var dices, out var selectedDices);
 
             var msg = $"Ви обрали {dices[buttonId]} | {string.Join(',', selectedDices)}";

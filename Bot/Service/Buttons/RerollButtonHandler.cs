@@ -4,7 +4,10 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class RerollButtonHandler(ITelegramBotClient bot, DiceKeyboardFactory builder, DiceService diceService) : IButtonsHandler
+    public class RerollButtonHandler(
+        ITelegramBotClient bot,
+        DiceKeyboardFactory builder,
+        DiceService diceService) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {

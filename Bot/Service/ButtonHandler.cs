@@ -10,19 +10,27 @@ namespace Bot
         private readonly Random _random;
         private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
         private readonly DiceService _diceService;
+        private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
         private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
-        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, Random random, DiceKeyboardFactory builderInlineKeyboardMarkups, DiceService diceService)
+        public ButtonHandler(
+            ILogger<CommandsHandler> logger,
+            TelegramBotClient bot,
+            Random random,
+            DiceKeyboardFactory builderInlineKeyboardMarkups,
+            DiceService diceService,
+            DiceCallbackDataSerializer diceCallbackDataSerializer)
         {
             _logger = logger;
             _bot = bot;
             _random = random;
             _builderInlineKeyboardMarkups = builderInlineKeyboardMarkups;
             _diceService = diceService;
+            _diceCallbackDataSerializer = diceCallbackDataSerializer;
             RegisterButtons();
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
         {
-            var action = callbackData.Action;
+            var action = callbackData.ActionType;
 
             if (_btnHandler.TryGetValue(action, out var handler))
             {
@@ -34,7 +42,7 @@ namespace Bot
         {
             _btnHandler[CallbackActionType.HelloFirst] = new HelloButtonHandler(_bot);
             _btnHandler[CallbackActionType.HelloSecond] = new HelloButtonHandler(_bot);
-            _btnHandler[CallbackActionType.Dice] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups);
+            _btnHandler[CallbackActionType.Dice] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups, _diceCallbackDataSerializer);
             _btnHandler[CallbackActionType.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
         }
     }

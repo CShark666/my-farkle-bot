@@ -21,6 +21,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<Random>();
         services.AddSingleton<DiceService>();
+        services.AddScoped<DiceCallbackDataSerializer>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
         services.AddScoped<DiceKeyboardFactory>();
