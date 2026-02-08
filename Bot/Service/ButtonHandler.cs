@@ -30,13 +30,21 @@ namespace Bot
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
         {
-            var action = callbackData.ActionType;
-
-            if (_btnHandler.TryGetValue(action, out var handler))
+            if (callbackData.UserId == query.From.Id)
             {
-                await handler.HandleButton(callbackData, query);
+                var action = callbackData.ActionType;
+                _btnHandler.TryGetValue(action, out var handler);
+                
+                await handler!.HandleButton(callbackData, query);
                 _logger.LogInformation("Handled btn action: {btn_action}", handler.GetType().Name);
+
             }
+            else
+            {
+                await _bot.AnswerCallbackQuery(query.Id,
+                "❌Це не ваша кнопка.❌");
+            }
+
         }
         private void RegisterButtons()
         {
