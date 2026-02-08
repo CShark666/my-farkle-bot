@@ -1,20 +1,12 @@
 namespace Bot
 {
-    public class User
+    public class User(long chatId, long userId, string userName, string firstName)
     {
-        public long ChatId { get; set; }
-        public long UserId { get; set; }
-        public string UserName { get; set; } = "NO_USER_NAME";
-        public string FirstName { get; set; } = "NO_FIRST_NAME";
+        public long ChatId { get; set; } = chatId;
+        public long UserId { get; set; } = userId;
+        public string UserName { get; set; } = userName;
+        public string FirstName { get; set; } = firstName;
         public int Score { get; set; } = 0;
-
-        public User(long chatId, long userId, string userName, string firstName)
-        {
-            ChatId = chatId;
-            UserId = userId;
-            UserName = userName;
-            FirstName = firstName;
-        }
 
         public override string ToString() => $"[chatId: {ChatId} userId: {UserId}] {UserName} {FirstName}";
     }
