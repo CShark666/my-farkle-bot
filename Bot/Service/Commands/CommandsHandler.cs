@@ -1,5 +1,5 @@
+using Bot.Service.Commands.Handlers;
 using Telegram.Bot;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -44,6 +44,7 @@ namespace Bot
         private void RegisterCommands()
         {
             _cmdHandler["/hello"] = new HelloCommandHandler(_bot,_callbackData);
+            _cmdHandler["/throwdice"] = new ThrowDiceCmdHandler(_bot, _callbackData, _diceService, _diceCallbackDataSerializer);
             _cmdHandler["/play"] = new PlayCmdHandler(_bot, _callbackData, _diceService, _diceCallbackDataSerializer);
         }
     }

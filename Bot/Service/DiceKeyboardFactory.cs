@@ -52,7 +52,7 @@ namespace Bot
             var newSelectedDiceIds = ToggleDiceSelection(diceIndex, currentlySelectedIndices);
             var text = $"{allDiceValues[diceIndex]} {emoji}";
             var callbackData = diceCallbackDataSerializer.Serialize(
-                CallbackActionType.Dice,
+                CallbackActionType.ThrowDice,
                 chatId,
                 userId,
                 diceIndex,

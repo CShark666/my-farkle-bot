@@ -4,7 +4,7 @@ namespace Bot
     {
         HelloFirst,
         HelloSecond,
-        Dice,
+        ThrowDice,
         Reroll
     }
     public enum Dices

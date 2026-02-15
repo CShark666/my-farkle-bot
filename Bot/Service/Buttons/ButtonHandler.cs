@@ -50,7 +50,7 @@ namespace Bot
         {
             _btnHandler[CallbackActionType.HelloFirst] = new HelloButtonHandler(_bot);
             _btnHandler[CallbackActionType.HelloSecond] = new HelloButtonHandler(_bot);
-            _btnHandler[CallbackActionType.Dice] = new PlayBtnHandler(_bot, _builderInlineKeyboardMarkups, _diceCallbackDataSerializer);
+            _btnHandler[CallbackActionType.ThrowDice] = new ThrowDiceBtnHandler(_bot, _builderInlineKeyboardMarkups, _diceCallbackDataSerializer);
             _btnHandler[CallbackActionType.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
         }
     }

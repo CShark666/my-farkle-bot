@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class PlayBtnHandler(
+    public class ThrowDiceBtnHandler(
         ITelegramBotClient bot,
         DiceKeyboardFactory builder,
         DiceCallbackDataSerializer diceCallbackDataSerializer) : IButtonsHandler
