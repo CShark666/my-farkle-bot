@@ -44,6 +44,7 @@ namespace Bot
         {
             using var scope = _serviceProvider.CreateScope();
             var cmdHandler = scope.ServiceProvider.GetRequiredService<CommandsHandler>();
+            var verifier = scope.ServiceProvider.GetRequiredService<UserRepository>();
 
             var msgText = msg.Text!.Split('@')[0].ToLower();
             var user = new User(
@@ -51,6 +52,8 @@ namespace Bot
                 userId: msg.From!.Id,
                 userName: msg.From.Username!,
                 firstName: msg.From.FirstName);
+            
+            user = await verifier.GetOrCreateUserAsync(user);
 
             _logger.LogInformation("Message: from {user}: {text}", user, msgText);
 

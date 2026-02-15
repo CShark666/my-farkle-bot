@@ -26,6 +26,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
         services.AddScoped<BotContext>(sp => new BotContext(dbPath!));
+        services.AddScoped<UserRepository>();
+
         services.AddScoped<DiceKeyboardFactory>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();

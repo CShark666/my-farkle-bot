@@ -8,6 +8,6 @@ namespace Bot
         public string FirstName { get; set; } = firstName;
         public int Score { get; set; } = 0;
 
-        public override string ToString() => $"[chatId: {ChatId} userId: {UserId}] {UserName} {FirstName}";
+        public override string ToString() => $"[chatId: {ChatId} userId: {UserId}] @{UserName} {FirstName}";
     }
 }
