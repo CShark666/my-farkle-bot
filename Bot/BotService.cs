@@ -10,15 +10,11 @@ namespace Bot
         TelegramBotClient bot,
         ILogger<BotService> logger,
         IServiceProvider serviceProvider,
-        CommandsHandler commandsHandler,
-        ButtonHandler buttonHandler,
         IDateTimeProvider dateTimeProvider) : BackgroundService
     {
         private TelegramBotClient _bot = bot;
         private ILogger _logger = logger;
         private IServiceProvider _serviceProvider = serviceProvider;
-        private readonly CommandsHandler _commandsHandler = commandsHandler;
-        private readonly ButtonHandler _buttonHandler = buttonHandler;
         private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,6 +42,9 @@ namespace Bot
         }
         private async Task OnMessage(Message msg, UpdateType type)
         {
+            using var scope = _serviceProvider.CreateScope();
+            var cmdHandler = scope.ServiceProvider.GetRequiredService<CommandsHandler>();
+
             var msgText = msg.Text!.Split('@')[0].ToLower();
             var user = new User(
                 chatId: msg.Chat.Id,
@@ -55,10 +54,13 @@ namespace Bot
 
             _logger.LogInformation("Message: from {user}: {text}", user, msgText);
 
-            await _commandsHandler.HandleCommandsAsync(msgText, user);
+            await cmdHandler.HandleCommandsAsync(msgText, user);
         }
         private async Task OnUpdate(Update update)
         {
+            using var scope = _serviceProvider.CreateScope();
+            var btnHandler = scope.ServiceProvider.GetRequiredService<ButtonHandler>();
+            
             var callbackData = new CallbackData();
             var user = new User(
                 chatId: update.CallbackQuery!.Message!.Chat.Id,
@@ -70,7 +72,7 @@ namespace Bot
 
             _logger.LogInformation("CallbackQuery: from {user}: {text}", user, callbackData.ActionType);
 
-            await _buttonHandler.HandleButtonsAsync(callbackData, update.CallbackQuery);
+            await btnHandler.HandleButtonsAsync(callbackData, update.CallbackQuery);
         }
     }
 }
