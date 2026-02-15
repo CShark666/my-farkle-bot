@@ -6,11 +6,9 @@ namespace Bot
     {
         public DbSet<User> Users { get; set; }
         public string DbPath { get; }
-        public BotContext()
+        public BotContext(string dbPath)
         {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = System.IO.Path.Join(path, "blogging.db");
+            DbPath = dbPath;
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite($"Data Source={DbPath}");

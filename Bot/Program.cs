@@ -10,6 +10,7 @@ var host = Host.CreateDefaultBuilder(args)
                 .Build();
 
         var botApi = config["TelegramBot:Token"];
+        var dbPath = config["TelegramBot:DbString"];
 
         services.AddSingleton(sp => new TelegramBotClient(botApi!));
 
@@ -24,6 +25,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<DiceCallbackDataSerializer>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
+        services.AddScoped<BotContext>(sp => new BotContext(dbPath!));
         services.AddScoped<DiceKeyboardFactory>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
