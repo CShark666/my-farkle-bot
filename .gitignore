@@ -631,3 +631,4 @@ FodyWeavers.xsd
 appsettings.Development.json
 appsettings.json
 launchSettings.json
+Bot/Data/data.db
