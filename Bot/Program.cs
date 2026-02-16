@@ -4,13 +4,8 @@ using Telegram.Bot;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-
-        var botApi = config["TelegramBot:Token"];
-        var dbPath = config["TelegramBot:DbString"];
+        var botApi = context.Configuration["TelegramBot:Token"];
+        var dbPath = context.Configuration["TelegramBot:DbString"];
 
         services.AddSingleton(sp => new TelegramBotClient(botApi!));
 
