@@ -6,23 +6,19 @@ namespace Bot
     public class ButtonHandler
     {
         private readonly ILogger _logger;
-        private readonly TelegramBotClient _bot;
-        private readonly Random _random;
-        private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
+        private readonly TelegramBotClient _bot;        private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
         private readonly DiceService _diceService;
         private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
         private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
         public ButtonHandler(
             ILogger<CommandsHandler> logger,
             TelegramBotClient bot,
-            Random random,
             DiceKeyboardFactory builderInlineKeyboardMarkups,
             DiceService diceService,
             DiceCallbackDataSerializer diceCallbackDataSerializer)
         {
             _logger = logger;
             _bot = bot;
-            _random = random;
             _builderInlineKeyboardMarkups = builderInlineKeyboardMarkups;
             _diceService = diceService;
             _diceCallbackDataSerializer = diceCallbackDataSerializer;

@@ -2,7 +2,7 @@ namespace Bot
 {
     public class DiceService()
     {
-        public int[] ThrowDice(int[] dice)
+        public static int[] RollDice(int[] dice)
         {
             for (int i = 0; i < dice.Length; i++)
             {

@@ -15,14 +15,13 @@ var host = Host.CreateDefaultBuilder(args)
             builder.AddConsole();
         });
 
-        services.AddSingleton<Random>();
         services.AddSingleton<DiceService>();
-        services.AddScoped<DiceCallbackDataSerializer>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
-        services.AddScoped<BotContext>(sp => new BotContext(dbPath!));
+        services.AddScoped(sp => new BotContext(dbPath!));
         services.AddScoped<UserRepository>();
 
+        services.AddScoped<DiceCallbackDataSerializer>();
         services.AddScoped<DiceKeyboardFactory>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();

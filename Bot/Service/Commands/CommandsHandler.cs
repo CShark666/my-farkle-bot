@@ -8,7 +8,6 @@ namespace Bot
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
         private readonly CallbackData _callbackData;
-        private readonly Random _random;
         private readonly DiceService _diceService;
         private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
         private Dictionary<string, ICommandHandler> _cmdHandler = [];
@@ -16,14 +15,12 @@ namespace Bot
             ILogger<CommandsHandler> logger,
             TelegramBotClient bot,
             CallbackData callbackData,
-            Random random,
             DiceService diceService,
             DiceCallbackDataSerializer diceCallbackDataSerializer)
         {
             _logger = logger;
             _bot = bot;
             _callbackData = callbackData;
-            _random = random;
             _diceService = diceService;
             _diceCallbackDataSerializer = diceCallbackDataSerializer;
             
