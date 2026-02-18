@@ -14,7 +14,7 @@ namespace Bot
             callbackData.Deserialize(query.Data!);
 
             int[] dice = new int[6];
-            dice = diceService.ThrowDice(dice);
+            dice = diceService.RollDice(dice);
             var selectedDices = new List<int>();
 
             var msg = "Ви кинули кубики:";
