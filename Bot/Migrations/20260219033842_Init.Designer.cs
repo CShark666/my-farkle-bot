@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(BotContext))]
-    [Migration("20260218025022_init")]
-    partial class init
+    [Migration("20260219033842_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,10 +29,16 @@ namespace Bot.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Player1Id")
+                    b.Property<long>("Player1ChatId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Player2Id")
+                    b.Property<long>("Player1UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Player2ChatId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Player2UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
@@ -40,11 +46,11 @@ namespace Bot.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Player1Id");
+                    b.HasIndex("Player1ChatId", "Player1UserId");
 
-                    b.HasIndex("Player2Id");
+                    b.HasIndex("Player2ChatId", "Player2UserId");
 
-                    b.ToTable("Game");
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("Bot.Turn", b =>
@@ -66,7 +72,10 @@ namespace Bot.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("PlayerId")
+                    b.Property<long>("PlayerChatId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("PlayerUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SelectedDice")
@@ -80,38 +89,34 @@ namespace Bot.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.HasIndex("PlayerId");
+                    b.HasIndex("PlayerChatId", "PlayerUserId");
 
-                    b.ToTable("Turn");
+                    b.ToTable("Turns");
                 });
 
             modelBuilder.Entity("Bot.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<long>("ChatId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("ChatId")
+                    b.Property<long>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("UserId")
+                    b.Property<int>("Score")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId", "UserId")
-                        .IsUnique();
+                    b.HasKey("ChatId", "UserId");
 
                     b.ToTable("Users");
                 });
@@ -120,13 +125,13 @@ namespace Bot.Migrations
                 {
                     b.HasOne("Bot.User", "Player1")
                         .WithMany("GamesAsPlayer1")
-                        .HasForeignKey("Player1Id")
+                        .HasForeignKey("Player1ChatId", "Player1UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Bot.User", "Player2")
                         .WithMany("GamesAsPlayer2")
-                        .HasForeignKey("Player2Id")
+                        .HasForeignKey("Player2ChatId", "Player2UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -145,7 +150,7 @@ namespace Bot.Migrations
 
                     b.HasOne("Bot.User", "Player")
                         .WithMany()
-                        .HasForeignKey("PlayerId")
+                        .HasForeignKey("PlayerChatId", "PlayerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

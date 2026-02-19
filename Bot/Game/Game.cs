@@ -7,8 +7,10 @@ namespace Bot
         public int Id { get; set; }
         public GameStatus Status { get; set; }
 
-        public int Player1Id { get; set; }
-        public int Player2Id { get; set; }
+        public long Player1ChatId { get; set; }
+        public long Player1UserId { get; set; }
+        public long Player2ChatId { get; set; }
+        public long Player2UserId { get; set; }
 
         public User Player1 { get; set; }
         public User Player2 { get; set; }
@@ -21,7 +23,8 @@ namespace Bot
     {
         public int Id { get; set; }
         public int GameId { get; set; }
-        public int PlayerId { get; set; }
+        public long PlayerChatId { get; set; }
+        public long PlayerUserId { get; set; }
         public int TurnNumber { get; set; }
         public int DiceId { get; set; }
         public int[] DiceValue { get; set; } = new int[6];

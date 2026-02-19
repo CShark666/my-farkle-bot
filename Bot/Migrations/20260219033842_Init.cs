@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bot.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,55 +15,57 @@ namespace Bot.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
                     ChatId = table.Column<long>(type: "INTEGER", nullable: false),
                     UserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", nullable: false),
                     FirstName = table.Column<string>(type: "TEXT", nullable: false),
                     Score = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => new { x.ChatId, x.UserId });
                 });
 
             migrationBuilder.CreateTable(
-                name: "Game",
+                name: "Games",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    Player1Id = table.Column<int>(type: "INTEGER", nullable: false),
-                    Player2Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    Player1ChatId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Player1UserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Player2ChatId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Player2UserId = table.Column<long>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Game", x => x.Id);
+                    table.PrimaryKey("PK_Games", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Game_Users_Player1Id",
-                        column: x => x.Player1Id,
+                        name: "FK_Games_Users_Player1ChatId_Player1UserId",
+                        columns: x => new { x.Player1ChatId, x.Player1UserId },
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumns: new[] { "ChatId", "UserId" },
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Game_Users_Player2Id",
-                        column: x => x.Player2Id,
+                        name: "FK_Games_Users_Player2ChatId_Player2UserId",
+                        columns: x => new { x.Player2ChatId, x.Player2UserId },
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumns: new[] { "ChatId", "UserId" },
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Turn",
+                name: "Turns",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     GameId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PlayerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PlayerChatId = table.Column<long>(type: "INTEGER", nullable: false),
+                    PlayerUserId = table.Column<long>(type: "INTEGER", nullable: false),
                     TurnNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     DiceId = table.Column<int>(type: "INTEGER", nullable: false),
                     DiceValue = table.Column<string>(type: "TEXT", nullable: false),
@@ -72,56 +74,50 @@ namespace Bot.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Turn", x => x.Id);
+                    table.PrimaryKey("PK_Turns", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Turn_Game_GameId",
+                        name: "FK_Turns_Games_GameId",
                         column: x => x.GameId,
-                        principalTable: "Game",
+                        principalTable: "Games",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Turn_Users_PlayerId",
-                        column: x => x.PlayerId,
+                        name: "FK_Turns_Users_PlayerChatId_PlayerUserId",
+                        columns: x => new { x.PlayerChatId, x.PlayerUserId },
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumns: new[] { "ChatId", "UserId" },
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Game_Player1Id",
-                table: "Game",
-                column: "Player1Id");
+                name: "IX_Games_Player1ChatId_Player1UserId",
+                table: "Games",
+                columns: new[] { "Player1ChatId", "Player1UserId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Game_Player2Id",
-                table: "Game",
-                column: "Player2Id");
+                name: "IX_Games_Player2ChatId_Player2UserId",
+                table: "Games",
+                columns: new[] { "Player2ChatId", "Player2UserId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Turn_GameId",
-                table: "Turn",
+                name: "IX_Turns_GameId",
+                table: "Turns",
                 column: "GameId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Turn_PlayerId",
-                table: "Turn",
-                column: "PlayerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_ChatId_UserId",
-                table: "Users",
-                columns: new[] { "ChatId", "UserId" },
-                unique: true);
+                name: "IX_Turns_PlayerChatId_PlayerUserId",
+                table: "Turns",
+                columns: new[] { "PlayerChatId", "PlayerUserId" });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Turn");
+                name: "Turns");
 
             migrationBuilder.DropTable(
-                name: "Game");
+                name: "Games");
 
             migrationBuilder.DropTable(
                 name: "Users");
