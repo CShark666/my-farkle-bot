@@ -6,22 +6,32 @@ namespace Bot
     public class ButtonHandler
     {
         private readonly ILogger _logger;
-        private readonly TelegramBotClient _bot;        private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
+        private readonly TelegramBotClient _bot;
+        private readonly DiceKeyboardFactory _builderInlineKeyboardMarkups;
         private readonly DiceService _diceService;
         private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly BotContext _botContext;
+        private readonly UserRepository _userRepository;
         private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
         public ButtonHandler(
             ILogger<CommandsHandler> logger,
             TelegramBotClient bot,
             DiceKeyboardFactory builderInlineKeyboardMarkups,
             DiceService diceService,
-            DiceCallbackDataSerializer diceCallbackDataSerializer)
+            DiceCallbackDataSerializer diceCallbackDataSerializer,
+            IDateTimeProvider dateTimeProvider,
+            BotContext botContext,
+            UserRepository userRepository)
         {
             _logger = logger;
             _bot = bot;
             _builderInlineKeyboardMarkups = builderInlineKeyboardMarkups;
             _diceService = diceService;
             _diceCallbackDataSerializer = diceCallbackDataSerializer;
+            _dateTimeProvider = dateTimeProvider;
+            _botContext = botContext;
+            _userRepository = userRepository;
             RegisterButtons();
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
@@ -30,7 +40,7 @@ namespace Bot
             {
                 var action = callbackData.ActionType;
                 _btnHandler.TryGetValue(action, out var handler);
-                
+
                 await handler!.HandleButton(callbackData, query);
                 _logger.LogInformation("Handled btn action: {btn_action}", handler.GetType().Name);
 
@@ -48,6 +58,7 @@ namespace Bot
             _btnHandler[CallbackActionType.HelloSecond] = new HelloButtonHandler(_bot);
             _btnHandler[CallbackActionType.ThrowDice] = new ThrowDiceBtnHandler(_bot, _builderInlineKeyboardMarkups, _diceCallbackDataSerializer);
             _btnHandler[CallbackActionType.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
+            _btnHandler[CallbackActionType.StartGame] = new StartGameBtnHandler(_bot, _dateTimeProvider, _botContext, _userRepository);
         }
     }
 }

@@ -5,12 +5,18 @@ namespace Bot
         HelloFirst,
         HelloSecond,
         ThrowDice,
-        Reroll
+        Reroll,
+        StartGame
     }
     public enum GameStatus
     {
         WaitingOpponent,
         InProgress,
         Finished
+    }
+    public enum GameCallback
+    {
+        RollDice,
+        SelectDice
     }
 }
