@@ -6,7 +6,8 @@ namespace Bot
         HelloSecond,
         ThrowDice,
         Reroll,
-        StartGame
+        StartGame,
+        SelectDice
     }
     public enum GameStatus
     {

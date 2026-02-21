@@ -27,6 +27,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();
 
+        services.AddScoped<GameKeyboardFactory>();
+        services.AddScoped<GameCallbackDataSerializer>();
+
         services.AddHostedService<BotService>();
     })
     .Build();

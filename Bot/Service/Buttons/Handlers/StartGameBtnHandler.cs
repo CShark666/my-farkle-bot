@@ -1,7 +1,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -9,7 +8,8 @@ namespace Bot
         ITelegramBotClient bot,
         IDateTimeProvider dateTimeProvider,
         BotContext botContext,
-        UserRepository userRepository) : IButtonsHandler
+        UserRepository userRepository,
+        GameKeyboardFactory keyboardBuilder) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
@@ -44,23 +44,7 @@ namespace Bot
 
 
             // Creating buttons
-            var keyboard = new InlineKeyboardMarkup();
-
-            for (int i = 0; i < firstTurn.DiceValue.Length; i++)
-            {
-                var text = $"{firstTurn.DiceValue[i]} 🔄";
-                var newCallbackData = string.Join('|',
-                    (int)GameCallback.SelectDice,
-                    firstTurn.PlayerUserId,
-                    firstTurn.GameId);
-
-                var button = InlineKeyboardButton.WithCallbackData(text, newCallbackData);
-
-                if (i % 3 == 0)
-                    keyboard.AddNewRow(button);
-                else
-                    keyboard.AddButton(button);
-            }
+            var keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(firstTurn);
 
             // Creating bot response
             var callbackQueryMsg = $"Ви прийняли виклик{player1.FirstName}";

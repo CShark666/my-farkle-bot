@@ -13,6 +13,7 @@ namespace Bot
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly BotContext _botContext;
         private readonly UserRepository _userRepository;
+        private readonly GameKeyboardFactory _gameKeyboardFactory;
         private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
         public ButtonHandler(
             ILogger<CommandsHandler> logger,
@@ -22,7 +23,8 @@ namespace Bot
             DiceCallbackDataSerializer diceCallbackDataSerializer,
             IDateTimeProvider dateTimeProvider,
             BotContext botContext,
-            UserRepository userRepository)
+            UserRepository userRepository,
+            GameKeyboardFactory gameKeyboardFactory)
         {
             _logger = logger;
             _bot = bot;
@@ -32,6 +34,7 @@ namespace Bot
             _dateTimeProvider = dateTimeProvider;
             _botContext = botContext;
             _userRepository = userRepository;
+            _gameKeyboardFactory = gameKeyboardFactory;
             RegisterButtons();
         }
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
@@ -58,7 +61,8 @@ namespace Bot
             _btnHandler[CallbackActionType.HelloSecond] = new HelloButtonHandler(_bot);
             _btnHandler[CallbackActionType.ThrowDice] = new ThrowDiceBtnHandler(_bot, _builderInlineKeyboardMarkups, _diceCallbackDataSerializer);
             _btnHandler[CallbackActionType.Reroll] = new RerollButtonHandler(_bot, _builderInlineKeyboardMarkups, _diceService);
-            _btnHandler[CallbackActionType.StartGame] = new StartGameBtnHandler(_bot, _dateTimeProvider, _botContext, _userRepository);
+            _btnHandler[CallbackActionType.StartGame] = new StartGameBtnHandler(_bot, _dateTimeProvider, _botContext, _userRepository, _gameKeyboardFactory);
+            _btnHandler[CallbackActionType.SelectDice] = new SelectDiceBtnHandler(_bot, _botContext, _gameKeyboardFactory);
         }
     }
 }
