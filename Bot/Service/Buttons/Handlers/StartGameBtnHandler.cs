@@ -31,15 +31,12 @@ namespace Bot
             await botContext.Games.AddAsync(game);
             await botContext.SaveChangesAsync();
 
-            // Creating first turn
+            // Creating and save first turn + roll dice
             var firstTurn = new Turn(game, player1);
+            game.CurrentTurn = firstTurn;
+
             firstTurn.RollDice();
 
-            await botContext.Turns.AddAsync(firstTurn);
-            await botContext.SaveChangesAsync();
-
-            game.CurrentTurn = firstTurn;
-            game.CurrentTurnId = firstTurn.Id;
             await botContext.SaveChangesAsync();
 
 

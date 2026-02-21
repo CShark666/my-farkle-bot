@@ -2,21 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
     public class SelectDiceBtnHandler(
         ITelegramBotClient bot,
         BotContext botContext,
-        GameKeyboardFactory keyboardBuilder) : IButtonsHandler
+        GameKeyboardFactory keyboardBuilder,
+        GameCallbackDataSerializer callbackDataSerializer) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Getting game data
-            var p = query.Data!.Split('|');
-            var gameId = int.Parse(p[3]);
-            var selectedDiceId = int.Parse(p[4]);
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
 
             var game = await botContext.Games
                 .Include(g => g.CurrentTurn)
@@ -25,10 +23,7 @@ namespace Bot
 
             // Add and save selected dice
             var turn = game!.CurrentTurn;
-            var currentlySelectedIndices = turn!.SelectedDice.ToList();
-
-            currentlySelectedIndices.Add(selectedDiceId);
-            turn.SelectedDice = currentlySelectedIndices.ToArray();
+            turn!.AddOrRemoveDiceSelection(selectedDiceId);
 
             await botContext.SaveChangesAsync();
 
@@ -38,6 +33,7 @@ namespace Bot
             // Creating bot response
             var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
             var textMessage = $"@{turn.Player.UserName}(p1) обрав :{turn.DiceValue[selectedDiceId]}";
+
             try
             {
                 await bot.EditMessageText(
@@ -45,6 +41,7 @@ namespace Bot
                     messageId: query.Message!.Id,
                     text: textMessage,
                     replyMarkup: keyboard);
+
                 await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
             }
             catch (ApiRequestException ex)

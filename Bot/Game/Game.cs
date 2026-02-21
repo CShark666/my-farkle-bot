@@ -14,17 +14,15 @@ namespace Bot
         public User Player1 { get; set; }
         public User Player2 { get; set; }
         public int? CurrentTurnId { get; set; }
+        [NotMapped]
+        public long? CurrentPlayerId { get => CurrentTurn!.PlayerUserId; }
         public Turn? CurrentTurn { get; set; }
         public ICollection<Turn> Turns { get; set; }
         public Game() { }
         public Game(User p1, User p2, DateTime createdDateTime)
         {
             Status = GameStatus.InProgress;
-            Player1ChatId = p1.ChatId;
-            Player1UserId = p1.UserId;
             Player1 = p1;
-            Player2ChatId = p2.ChatId;
-            Player2UserId = p2.UserId;
             Player2 = p2;
             CreatedAt = createdDateTime;
         }
@@ -65,5 +63,24 @@ namespace Bot
                 DiceValue[i] = Random.Shared.Next(1, 7);
             }
         }
+        public void AddOrRemoveDiceSelection(int diceId)
+        {
+            var tempList = SelectedDice.ToList();
+
+            if (SelectedDice.Contains(diceId))
+                tempList.Remove(diceId);
+            else
+                tempList.Add(diceId);
+
+            SelectedDice = tempList.ToArray();
+        }
+
+        public void AddSelectedDice(int diceId)
+        {
+            var tempList = SelectedDice.ToList();
+            tempList.Add(diceId);
+            SelectedDice = tempList.ToArray();
+        }
+
     }
 }
