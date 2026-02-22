@@ -11,10 +11,21 @@ namespace Bot
         };
         public int Calculate(int[] dice)
         {
-            var score = 0;
+            var total = 0;
+            var remaining = dice.ToList();
+            
             foreach(var rule in _rules)
-                score += rule.Check(dice);
-            return score;
+            {
+                var score = rule.Check(remaining.ToArray(), out int[] usedDice);
+                total += score;
+
+                foreach(var die in usedDice)
+                    remaining.Remove(die);
+            }
+            if(remaining.Count > 0)
+                    return 0;
+            
+            return total;
         }
     }
 }
