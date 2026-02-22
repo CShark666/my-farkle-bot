@@ -9,7 +9,8 @@ namespace Bot
         ITelegramBotClient bot,
         BotContext botContext,
         GameKeyboardFactory keyboardBuilder,
-        GameCallbackDataSerializer callbackDataSerializer) : IButtonsHandler
+        GameCallbackDataSerializer callbackDataSerializer,
+        ScoreCalculator scoreCalculator) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
@@ -24,15 +25,18 @@ namespace Bot
             // Add and save selected dice
             var turn = game!.CurrentTurn;
             turn!.AddOrRemoveDiceSelection(selectedDiceId);
-
             await botContext.SaveChangesAsync();
+
+            // Calculate score selected dice
+            var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
+            turn.Score += scoreCalculator.Calculate(selectedDice);
 
             // Creating buttons
             var keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
 
             // Creating bot response
             var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
-            var textMessage = $"@{turn.Player.UserName}(p1) обрав :{turn.DiceValue[selectedDiceId]}";
+            var textMessage = $"@{turn.Player.UserName}(p1)\nВаш рахунок за цей хід: {turn.Score}";
 
             try
             {

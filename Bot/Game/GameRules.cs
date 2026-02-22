@@ -51,7 +51,7 @@ namespace Bot
         {
             int five = dice.Count(d => d == 5);
             if (five >= 3) return 0;
-            return five * 100;
+            return five * 50;
         }
     }
 }

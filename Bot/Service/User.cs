@@ -7,7 +7,7 @@ namespace Bot
         public long UserId { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
-        public int Score { get; set; } = 0;
+        public int TotalScore { get; set; } = 0;
         public User(long chatId, long userId, string userName, string firstName)
         {
             ChatId = chatId;

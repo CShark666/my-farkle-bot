@@ -29,6 +29,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddScoped<GameKeyboardFactory>();
         services.AddScoped<GameCallbackDataSerializer>();
+        services.AddScoped<ScoreCalculator>();
 
         services.AddHostedService<BotService>();
     })

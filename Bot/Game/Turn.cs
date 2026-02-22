@@ -9,7 +9,7 @@ namespace Bot
         public long PlayerChatId { get; set; }
         public long PlayerUserId { get; set; }
         public int TurnNumber { get; set; }
-        public int DiceId { get; set; } = 0;
+        public int Score { get; set; } = 0;
         public int[] DiceValue { get; set; } = new int[6];
         public int[] SelectedDice { get; set; } = [];
         [NotMapped]
