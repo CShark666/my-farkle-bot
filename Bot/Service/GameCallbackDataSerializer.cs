@@ -23,6 +23,25 @@ namespace Bot
             gameId = int.Parse(p[3]);
             diceIndex = int.Parse(p[4]);
         }
+        // NO DICE ID
+        public string Serialize(
+            CallbackActionType actionType,
+            long playerChatId,
+            long playerUserId,
+            int gameId
+        )
+        {
+            return string.Join('|',
+                    (int)actionType,
+                    playerChatId,
+                    playerUserId,
+                    gameId);
+        }
+        public void Deserialize(string data, out int gameId)
+        {
+            var p = data.Split('|');
+            gameId = int.Parse(p[3]);
+        }
         public void Deserialize(string data,
             out CallbackActionType actionType,
             out long playerChatId,

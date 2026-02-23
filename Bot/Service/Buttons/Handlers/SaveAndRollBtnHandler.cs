@@ -5,7 +5,7 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class SelectDiceBtnHandler(
+    public class SaveAndRollBtnHandler(
         ITelegramBotClient bot,
         BotContext botContext,
         GameKeyboardFactory keyboardBuilder,
@@ -15,21 +15,17 @@ namespace Bot
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Getting game data
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
-
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
             var game = await botContext.Games
                         .Include(g => g.CurrentTurn)
                         .Include(g => g.CurrentTurn!.Player)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
 
-            // Add selected dice
             var turn = game!.CurrentTurn;
-            turn!.AddOrRemoveDiceSelection(selectedDiceId);
+            var currentScore = turn!.CurrentScore;
 
-            // Calculate score selected dice
-            var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
-            turn.CurrentScore = scoreCalculator.Calculate(selectedDice);
-
+            // Save score and roll remaining dice 
+            turn.SaveAdnRoll();
             await botContext.SaveChangesAsync();
 
             // Creating buttons
@@ -39,7 +35,7 @@ namespace Bot
             diceKeyboard.AddNewRow(saveAndRollButton);
 
             // Creating bot response
-            var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
+            var callbackQueryMsg = $"Супер! Ви отримали {currentScore} очок!";
             var textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
             try

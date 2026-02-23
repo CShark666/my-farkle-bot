@@ -9,7 +9,8 @@ namespace Bot
         public long PlayerChatId { get; set; }
         public long PlayerUserId { get; set; }
         public int TurnNumber { get; set; }
-        public int Score { get; set; } = 0;
+        public int TotalScore { get; set; } = 0;
+        public int CurrentScore { get; set; } = 0;
         public int[] DiceValue { get; set; } = new int[6];
         public int[] SelectedDice { get; set; } = [];
         [NotMapped]
@@ -37,6 +38,14 @@ namespace Bot
             {
                 DiceValue[i] = Random.Shared.Next(1, 7);
             }
+        }
+        public void SaveAdnRoll()
+        {
+            TotalScore += CurrentScore;
+            CurrentScore = 0;
+            DiceValue = new int[RemainingDice];
+            SelectedDice = Array.Empty<int>();
+            RollDice();
         }
         public void AddOrRemoveDiceSelection(int diceId)
         {
