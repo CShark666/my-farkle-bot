@@ -29,10 +29,10 @@ namespace Bot
             turn.TotalScore += turn.CurrentScore;
             turn.Player.TotalScore += turn.TotalScore;
 
-            var newPlayer = game.GetNewCurrentPlayer();
-            var newTurn = new Turn(game.Id, newPlayer);
-            game.CurrentTurn = newTurn;
-            game.CurrentTurn.RollDice();
+            var newPlayer = game.GetOpponent();
+            
+            game.StartTurn(newPlayer);
+            game.CurrentTurn!.RollDice();
 
             await botContext.SaveChangesAsync();
 

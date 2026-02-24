@@ -27,5 +27,9 @@ namespace Bot
             
             return total;
         }
+        public bool FarkleCheck(int[] dice)
+        {
+            return Calculate(dice) == 0;
+        }
     }
 }

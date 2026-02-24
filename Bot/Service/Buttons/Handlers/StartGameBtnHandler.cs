@@ -31,17 +31,14 @@ namespace Bot
             await botContext.Games.AddAsync(game);
             await botContext.SaveChangesAsync();
 
-            // Creating and save first turn + roll dice
-            var firstTurn = new Turn(game.Id, player1);
-            game.CurrentTurn = firstTurn;
-
-            firstTurn.RollDice();
+            // Creating turn, roll dice and save it
+            game.StartTurn(player1);
+            game.CurrentTurn!.RollDice();
 
             await botContext.SaveChangesAsync();
 
-
             // Creating buttons
-            var keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(firstTurn);
+            var keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(game.CurrentTurn);
 
             // Creating bot response
             var callbackQueryMsg = $"Ви прийняли виклик{player1.FirstName}";

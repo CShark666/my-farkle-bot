@@ -17,7 +17,7 @@ namespace Bot
         [NotMapped]
         public long? CurrentPlayerId { get => CurrentTurn!.PlayerUserId; }
         public Turn? CurrentTurn { get; set; }
-        public ICollection<Turn> Turns { get; set; }
+        public ICollection<Turn> Turns { get; set; } = new List<Turn>();
         public Game() { }
         public Game(User p1, User p2, DateTime createdDateTime)
         {
@@ -27,9 +27,16 @@ namespace Bot
             CreatedAt = createdDateTime;
         }
 
-        public User GetNewCurrentPlayer()
+        public User GetOpponent()
         {
             return CurrentPlayerId == Player1.UserId ? Player2 : Player1;
+        }
+
+        public void StartTurn(User player)
+        {
+            var turn = new Turn(Id, player);
+            Turns.Add(turn);
+            CurrentTurn = turn;
         }
     }
 }
