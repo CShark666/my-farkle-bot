@@ -5,30 +5,34 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class SelectDiceBtnHandler(
-        ITelegramBotClient bot,
-        BotContext botContext,
-        GameKeyboardFactory keyboardBuilder,
-        GameCallbackDataSerializer callbackDataSerializer,
-        ScoreCalculator scoreCalculator) : IButtonsHandler
+    public class SaveAndEndBtnHandler(
+            ITelegramBotClient bot,
+            BotContext botContext,
+            GameKeyboardFactory keyboardBuilder,
+            GameCallbackDataSerializer callbackDataSerializer,
+            ScoreCalculator scoreCalculator) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Getting game data
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
-
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
             var game = await botContext.Games
                         .Include(g => g.CurrentTurn)
-                        .Include(g => g.CurrentTurn!.Player)
+                        .Include(g => g.Player1)
+                        .Include(g => g.Player2)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
-
-            // Add selected dice
+            
             var turn = game!.CurrentTurn;
-            turn!.AddOrRemoveDiceSelection(selectedDiceId);
+            var currentScore = turn!.CurrentScore;
 
-            // Calculate score selected dice
-            var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
-            turn.CurrentScore = scoreCalculator.Calculate(selectedDice);
+            // Save and end turn
+            turn.TotalScore += turn.CurrentScore;
+            turn.Player.TotalScore += turn.TotalScore;
+
+            var newPlayer = game.GetNewCurrentPlayer();
+            var newTurn = new Turn(game.Id, newPlayer);
+            game.CurrentTurn = newTurn;
+            game.CurrentTurn.RollDice();
 
             await botContext.SaveChangesAsync();
 
@@ -41,8 +45,8 @@ namespace Bot
             diceKeyboard.AddNewRow(saveAndEndButton);
 
             // Creating bot response
-            var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
-            var textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            var callbackQueryMsg = $" ";
+            var textMessage = $"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
             try
             {

@@ -26,5 +26,10 @@ namespace Bot
             Player2 = p2;
             CreatedAt = createdDateTime;
         }
+
+        public User GetNewCurrentPlayer()
+        {
+            return CurrentPlayerId == Player1.UserId ? Player2 : Player1;
+        }
     }
 }

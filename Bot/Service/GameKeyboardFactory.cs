@@ -26,7 +26,7 @@ namespace Bot
         }
         public InlineKeyboardButton SaveAndRollButton(Turn turn)
         {
-            var text = "Записати очки й продовжити.";
+            var text = "🔄 Записати очки й продовжити.";
             var callbackData = gameCallbackDataSerializer.Serialize(
                 CallbackActionType.SaveAndRoll,
                 turn.PlayerChatId,
@@ -35,6 +35,19 @@ namespace Bot
             
             return InlineKeyboardButton.WithCallbackData(text, callbackData);
         }
+
+        internal InlineKeyboardButton SaveAndEndButton(Turn turn)
+        {
+            var text = "✅ Записати очки й закінчити.";
+            var callbackData = gameCallbackDataSerializer.Serialize(
+                CallbackActionType.SaveAndEnd,
+                turn.PlayerChatId,
+                turn.PlayerUserId,
+                turn.GameId);
+            
+            return InlineKeyboardButton.WithCallbackData(text, callbackData);
+        }
+
         private InlineKeyboardButton CreateDiceToggleButton(Turn turn, int diceIndex)
         {
             bool isSelected = turn.SelectedDice.Contains(diceIndex);

@@ -25,9 +25,9 @@ namespace Bot
         public User Player { get; set; }
 
         public Turn() { }
-        public Turn(Game game, User player)
+        public Turn(int gameId, User player)
         {
-            GameId = game.Id;
+            GameId = gameId;
             PlayerChatId = player.ChatId;
             PlayerUserId = player.UserId;
             TurnNumber = 1;

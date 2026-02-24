@@ -8,7 +8,8 @@ namespace Bot
         Reroll,
         StartGame,
         SelectDice,
-        SaveAndRoll
+        SaveAndRoll,
+        SaveAndEnd
     }
     public enum GameStatus
     {

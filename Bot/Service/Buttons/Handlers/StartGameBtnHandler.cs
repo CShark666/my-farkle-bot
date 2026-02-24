@@ -32,7 +32,7 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating and save first turn + roll dice
-            var firstTurn = new Turn(game, player1);
+            var firstTurn = new Turn(game.Id, player1);
             game.CurrentTurn = firstTurn;
 
             firstTurn.RollDice();

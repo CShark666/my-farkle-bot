@@ -70,6 +70,7 @@ namespace Bot
             _btnHandler[CallbackActionType.StartGame] = new StartGameBtnHandler(_bot, _dateTimeProvider, _botContext, _userRepository, _gameKeyboardFactory);
             _btnHandler[CallbackActionType.SelectDice] = new SelectDiceBtnHandler(_bot, _botContext, _gameKeyboardFactory, _gameCallbackDataSerializer, _scoreCalculator);
             _btnHandler[CallbackActionType.SaveAndRoll] = new SaveAndRollBtnHandler(_bot, _botContext, _gameKeyboardFactory, _gameCallbackDataSerializer, _scoreCalculator);
+            _btnHandler[CallbackActionType.SaveAndEnd] = new SaveAndEndBtnHandler(_bot, _botContext, _gameKeyboardFactory, _gameCallbackDataSerializer, _scoreCalculator);
         }
     }
 }

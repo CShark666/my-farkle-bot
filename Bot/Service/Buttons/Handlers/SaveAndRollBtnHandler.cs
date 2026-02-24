@@ -31,8 +31,10 @@ namespace Bot
             // Creating buttons
             var diceKeyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
             var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
+            var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
 
             diceKeyboard.AddNewRow(saveAndRollButton);
+            diceKeyboard.AddNewRow(saveAndEndButton);
 
             // Creating bot response
             var callbackQueryMsg = $"Супер! Ви отримали {currentScore} очок!";
