@@ -81,6 +81,9 @@ namespace Bot.Migrations
                     b.Property<long>("PlayerUserId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("RemainingDice")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SelectedDice")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -111,9 +114,6 @@ namespace Bot.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TotalScore")
                         .HasColumnType("INTEGER");

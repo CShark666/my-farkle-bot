@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(BotContext))]
-    [Migration("20260220044955_AddCurrentTurnToGames")]
-    partial class AddCurrentTurnToGames
+    [Migration("20260224062540_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,7 +68,7 @@ namespace Bot.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("DiceId")
+                    b.Property<int>("CurrentScore")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DiceValue")
@@ -84,9 +84,15 @@ namespace Bot.Migrations
                     b.Property<long>("PlayerUserId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("RemainingDice")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SelectedDice")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("TotalScore")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TurnNumber")
                         .HasColumnType("INTEGER");
@@ -112,10 +118,7 @@ namespace Bot.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Score")
+                    b.Property<int>("TotalScore")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")

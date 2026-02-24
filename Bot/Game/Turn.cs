@@ -4,6 +4,8 @@ namespace Bot
 {
     public class Turn
     {
+        private const int MaxDice = 6;
+
         public int Id { get; set; }
         public int GameId { get; set; }
         public long PlayerChatId { get; set; }
@@ -11,15 +13,9 @@ namespace Bot
         public int TurnNumber { get; set; }
         public int TotalScore { get; set; } = 0;
         public int CurrentScore { get; set; } = 0;
-        public int[] DiceValue { get; set; } = new int[6];
+        public int[] DiceValue { get; set; } = new int[MaxDice];
         public int[] SelectedDice { get; set; } = [];
-        [NotMapped]
-        public int RemainingDice
-        {
-            get => SelectedDice.Length > 0
-            ? DiceValue.Length - SelectedDice.Length
-            : 6;
-        }
+        public int RemainingDice { get; private set; } = MaxDice;
         public DateTime CreatedAt { get; set; }
         public Game Game { get; set; }
         public User Player { get; set; }
@@ -41,11 +37,24 @@ namespace Bot
         }
         public void SaveAdnRoll()
         {
+            SaveCurrentScore();
+            ResetDiceState();
+            RollDice();
+        }
+        public void SaveCurrentScore()
+        {
             TotalScore += CurrentScore;
             CurrentScore = 0;
+        }
+        public void ResetDiceState()
+        {
+            RemainingDice = DiceValue.Length - SelectedDice.Length;
+
+            if (RemainingDice == 0)
+                RemainingDice = MaxDice;
+
             DiceValue = new int[RemainingDice];
             SelectedDice = Array.Empty<int>();
-            RollDice();
         }
         public void AddOrRemoveDiceSelection(int diceId)
         {
@@ -58,13 +67,5 @@ namespace Bot
 
             SelectedDice = tempList.ToArray();
         }
-
-        public void AddSelectedDice(int diceId)
-        {
-            var tempList = SelectedDice.ToList();
-            tempList.Add(diceId);
-            SelectedDice = tempList.ToArray();
-        }
-
     }
 }

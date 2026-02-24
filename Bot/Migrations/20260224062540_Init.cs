@@ -17,10 +17,9 @@ namespace Bot.Migrations
                 {
                     ChatId = table.Column<long>(type: "INTEGER", nullable: false),
                     UserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    Id = table.Column<int>(type: "INTEGER", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", nullable: false),
                     FirstName = table.Column<string>(type: "TEXT", nullable: false),
-                    Score = table.Column<int>(type: "INTEGER", nullable: false)
+                    TotalScore = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,11 +33,12 @@ namespace Bot.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Player1ChatId = table.Column<long>(type: "INTEGER", nullable: false),
                     Player1UserId = table.Column<long>(type: "INTEGER", nullable: false),
                     Player2ChatId = table.Column<long>(type: "INTEGER", nullable: false),
                     Player2UserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    CurrentTurnId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,9 +67,11 @@ namespace Bot.Migrations
                     PlayerChatId = table.Column<long>(type: "INTEGER", nullable: false),
                     PlayerUserId = table.Column<long>(type: "INTEGER", nullable: false),
                     TurnNumber = table.Column<int>(type: "INTEGER", nullable: false),
-                    DiceId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalScore = table.Column<int>(type: "INTEGER", nullable: false),
+                    CurrentScore = table.Column<int>(type: "INTEGER", nullable: false),
                     DiceValue = table.Column<string>(type: "TEXT", nullable: false),
                     SelectedDice = table.Column<string>(type: "TEXT", nullable: false),
+                    RemainingDice = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -90,6 +92,12 @@ namespace Bot.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Games_CurrentTurnId",
+                table: "Games",
+                column: "CurrentTurnId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Games_Player1ChatId_Player1UserId",
                 table: "Games",
                 columns: new[] { "Player1ChatId", "Player1UserId" });
@@ -108,11 +116,23 @@ namespace Bot.Migrations
                 name: "IX_Turns_PlayerChatId_PlayerUserId",
                 table: "Turns",
                 columns: new[] { "PlayerChatId", "PlayerUserId" });
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Games_Turns_CurrentTurnId",
+                table: "Games",
+                column: "CurrentTurnId",
+                principalTable: "Turns",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Games_Turns_CurrentTurnId",
+                table: "Games");
+
             migrationBuilder.DropTable(
                 name: "Turns");
 
