@@ -9,8 +9,7 @@ namespace Bot
             TelegramBotClient bot,
             BotContext botContext,
             GameKeyboardFactory keyboardBuilder,
-            GameCallbackDataSerializer callbackDataSerializer,
-            ScoreCalculator scoreCalculator) : IButtonsHandler
+            GameCallbackDataSerializer callbackDataSerializer) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;
 

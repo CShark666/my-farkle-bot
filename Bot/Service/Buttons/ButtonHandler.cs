@@ -3,17 +3,12 @@ using Telegram.Bot.Types;
 
 namespace Bot
 {
-    public class ButtonHandler
+    public class ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, IEnumerable<IButtonsHandler> buttonsHandlers)
     {
-        private readonly ILogger _logger;
-        private readonly TelegramBotClient _bot;
-        private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = [];
-        public ButtonHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, IEnumerable<IButtonsHandler> buttonsHandlers)
-        {
-            _logger = logger;
-            _bot = bot;
-            _btnHandler = buttonsHandlers.ToDictionary(handler => handler.Key);
-        }
+        private readonly ILogger _logger = logger;
+        private readonly TelegramBotClient _bot = bot;
+        private Dictionary<CallbackActionType, IButtonsHandler> _btnHandler = buttonsHandlers.ToDictionary(handler => handler.Key);
+
         public async Task HandleButtonsAsync(CallbackData callbackData, CallbackQuery query)
         {
             if (callbackData.UserId == query.From.Id)
