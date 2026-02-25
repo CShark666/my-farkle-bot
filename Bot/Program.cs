@@ -1,15 +1,12 @@
 using Bot;
+using Bot.Service.Commands.Handlers;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-
-        var botApi = config["TelegramBot:Token"];
+        var botApi = context.Configuration["TelegramBot:Token"];
+        var dbPath = context.Configuration["TelegramBot:DbString"];
 
         services.AddSingleton(sp => new TelegramBotClient(botApi!));
 
@@ -19,15 +16,27 @@ var host = Host.CreateDefaultBuilder(args)
             builder.AddConsole();
         });
 
-        services.AddSingleton<Random>();
-        services.AddSingleton<DiceService>();
-        services.AddScoped<DiceCallbackDataSerializer>();
         services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
 
-        services.AddScoped<DiceKeyboardFactory>();
+        services.AddScoped(sp => new BotContext(dbPath!));
+        services.AddScoped<UserRepository>();
+
+        services.AddScoped<DiceCallbackDataSerializer>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();
+
+        services.AddScoped<GameKeyboardFactory>();
+        services.AddScoped<GameCallbackDataSerializer>();
+        services.AddScoped<ScoreCalculator>();
+        
+        services.AddTransient<ICommandHandler, StartGameCmdHandler>();
+        
+        services.AddTransient<IButtonsHandler, StartGameBtnHandler>();
+        services.AddTransient<IButtonsHandler, SelectDiceBtnHandler>();
+        services.AddTransient<IButtonsHandler, SaveAndRollBtnHandler>();
+        services.AddTransient<IButtonsHandler, SaveAndEndBtnHandler>();
+
 
         services.AddHostedService<BotService>();
     })
