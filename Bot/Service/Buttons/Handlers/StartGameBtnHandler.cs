@@ -6,13 +6,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Bot
 {
     public class StartGameBtnHandler(
-        ITelegramBotClient bot,
+        TelegramBotClient bot,
         IDateTimeProvider dateTimeProvider,
         BotContext botContext,
         UserRepository userRepository,
         GameKeyboardFactory keyboardBuilder,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
+        public CallbackActionType Key => CallbackActionType.StartGame;
+
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Creating players

@@ -6,12 +6,14 @@ using Telegram.Bot.Types;
 namespace Bot
 {
     public class SelectDiceBtnHandler(
-        ITelegramBotClient bot,
+        TelegramBotClient bot,
         BotContext botContext,
         GameKeyboardFactory keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
+        public CallbackActionType Key => CallbackActionType.SelectDice;
+
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Getting game data

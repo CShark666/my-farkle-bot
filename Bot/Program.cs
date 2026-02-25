@@ -1,4 +1,5 @@
 using Bot;
+using Bot.Service.Commands.Handlers;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -28,6 +29,14 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<GameKeyboardFactory>();
         services.AddScoped<GameCallbackDataSerializer>();
         services.AddScoped<ScoreCalculator>();
+        
+        services.AddTransient<ICommandHandler, StartGameCmdHandler>();
+        
+        services.AddTransient<IButtonsHandler, StartGameBtnHandler>();
+        services.AddTransient<IButtonsHandler, SelectDiceBtnHandler>();
+        services.AddTransient<IButtonsHandler, SaveAndRollBtnHandler>();
+        services.AddTransient<IButtonsHandler, SaveAndEndBtnHandler>();
+
 
         services.AddHostedService<BotService>();
     })

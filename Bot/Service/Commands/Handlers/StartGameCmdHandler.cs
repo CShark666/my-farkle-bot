@@ -4,11 +4,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Bot.Service.Commands.Handlers
 {
     public class StartGameCmdHandler(
-        ITelegramBotClient bot,
+        TelegramBotClient bot,
         CallbackData callbackData) : ICommandHandler
     {
-        private readonly ITelegramBotClient _bot = bot;
+        public string Key => "/startgame";
+
+        private readonly TelegramBotClient _bot = bot;
         private readonly CallbackData _callbackData = callbackData;
+
+
         public async Task HandleCommandAsync(User user)
         {
             var msg = $"@{user.UserName} кинув виклик!";

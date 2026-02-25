@@ -7,21 +7,12 @@ namespace Bot
     {
         private readonly ILogger _logger;
         private readonly TelegramBotClient _bot;
-        private readonly CallbackData _callbackData;
-        private readonly DiceCallbackDataSerializer _diceCallbackDataSerializer;
         private Dictionary<string, ICommandHandler> _cmdHandler = [];
-        public CommandsHandler(
-            ILogger<CommandsHandler> logger,
-            TelegramBotClient bot,
-            CallbackData callbackData,
-            DiceCallbackDataSerializer diceCallbackDataSerializer)
+        public CommandsHandler(ILogger<CommandsHandler> logger, TelegramBotClient bot, IEnumerable<ICommandHandler> commandHandlers)
         {
             _logger = logger;
             _bot = bot;
-            _callbackData = callbackData;
-            _diceCallbackDataSerializer = diceCallbackDataSerializer;
-
-            RegisterCommands();
+            _cmdHandler = commandHandlers.ToDictionary(handler => handler.Key);
         }
         public async Task HandleCommandsAsync(string msgText, User user)
         {
@@ -34,10 +25,6 @@ namespace Bot
             {
                 _logger.LogError("Unknown command: {command}", msgText);
             }
-        }
-        private void RegisterCommands()
-        {
-            _cmdHandler["/startgame"] = new StartGameCmdHandler(_bot, _callbackData);
         }
     }
 }

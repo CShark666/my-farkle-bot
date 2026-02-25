@@ -7,12 +7,14 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Bot
 {
     public class SaveAndRollBtnHandler(
-        ITelegramBotClient bot,
+        TelegramBotClient bot,
         BotContext botContext,
         GameKeyboardFactory keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
+        public CallbackActionType Key => CallbackActionType.SaveAndRoll;
+
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             // Getting game data
