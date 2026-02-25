@@ -13,23 +13,23 @@ namespace Bot
         {
             var total = 0;
             var remaining = dice.ToList();
-            
-            foreach(var rule in _rules)
+
+            foreach (var rule in _rules)
             {
                 var score = rule.Check(remaining.ToArray(), out int[] usedDice);
                 total += score;
 
-                foreach(var die in usedDice)
+                foreach (var die in usedDice)
                     remaining.Remove(die);
             }
-            if(remaining.Count > 0)
-                    return 0;
-            
+            if (remaining.Count > 0)
+                return 0;
+
             return total;
         }
-        public bool FarkleCheck(int[] dice)
-        {
-            return Calculate(dice) == 0;
-        }
+        public int CalculateRaw(int[] dice) =>
+            _rules.Sum(rule => rule.Check(dice, out int[] usedDice));
+        public bool IsFarkle(int[] dice) =>
+            CalculateRaw(dice) == 0;
     }
 }

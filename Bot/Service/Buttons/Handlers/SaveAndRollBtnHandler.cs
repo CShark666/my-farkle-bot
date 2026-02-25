@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -21,6 +22,11 @@ namespace Bot
                         .Include(g => g.CurrentTurn!.Player)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
 
+
+            // Creating variables
+            var callbackQueryMsg = string.Empty;
+            var textMessage = string.Empty;
+            var keyboard = new InlineKeyboardMarkup();
             var turn = game!.CurrentTurn;
             var currentScore = turn!.CurrentScore;
 
@@ -28,17 +34,26 @@ namespace Bot
             turn.SaveAdnRoll();
             await botContext.SaveChangesAsync();
 
-            // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
-            var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
+            if (scoreCalculator.IsFarkle(turn.DiceValue))
+            {
+                callbackQueryMsg = "Невдача :с";
+                textMessage = $"Ви програли! Та втратили {currentScore}";
+                keyboard = InlineKeyboardMarkup.Empty();
+            }
+            else
+            {
+                // Creating buttons
+                keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
+                var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
+                var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
 
-            diceKeyboard.AddNewRow(saveAndRollButton);
-            diceKeyboard.AddNewRow(saveAndEndButton);
+                keyboard.AddNewRow(saveAndRollButton);
+                keyboard.AddNewRow(saveAndEndButton);
 
-            // Creating bot response
-            var callbackQueryMsg = $"Супер! Ви отримали {currentScore} очок!";
-            var textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+                // Creating bot response
+                callbackQueryMsg = $"Супер! Ви отримали {currentScore} очок!";
+                textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            }
 
             try
             {
@@ -46,7 +61,7 @@ namespace Bot
                     chatId: turn.Player.ChatId,
                     messageId: query.Message!.Id,
                     text: textMessage,
-                    replyMarkup: diceKeyboard);
+                    replyMarkup: keyboard);
 
                 await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
             }

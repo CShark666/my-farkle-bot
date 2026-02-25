@@ -1,6 +1,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -9,7 +10,8 @@ namespace Bot
         IDateTimeProvider dateTimeProvider,
         BotContext botContext,
         UserRepository userRepository,
-        GameKeyboardFactory keyboardBuilder) : IButtonsHandler
+        GameKeyboardFactory keyboardBuilder,
+        ScoreCalculator scoreCalculator) : IButtonsHandler
     {
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
@@ -26,6 +28,11 @@ namespace Bot
                                             query.From.Username!,
                                             query.From.FirstName));
 
+            //
+            var callbackQueryMsg = string.Empty;
+            var textMessage = string.Empty;
+            var keyboard = new InlineKeyboardMarkup();
+
             // Creating game
             var game = new Game(player1, player2, dateTimeProvider.UtcNow);
             await botContext.Games.AddAsync(game);
@@ -37,12 +44,21 @@ namespace Bot
 
             await botContext.SaveChangesAsync();
 
-            // Creating buttons
-            var keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(game.CurrentTurn);
+            if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
+            {
+                callbackQueryMsg = "Невдача :с";
+                textMessage = $"Ви програли!";
+                keyboard = InlineKeyboardMarkup.Empty();
+            }
+            else
+            {
+                // Creating buttons
+                keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(game.CurrentTurn);
 
-            // Creating bot response
-            var callbackQueryMsg = $"Ви прийняли виклик{player1.FirstName}";
-            var textMessage = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
+                // Creating bot response
+                callbackQueryMsg = $"Ви прийняли виклик{player1.FirstName}";
+                textMessage = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
+            }
             try
             {
                 await bot.EditMessageText(
