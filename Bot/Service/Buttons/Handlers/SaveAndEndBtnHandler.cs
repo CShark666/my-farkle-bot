@@ -8,7 +8,7 @@ namespace Bot
     public class SaveAndEndBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
-            GameKeyboardFactory keyboardBuilder,
+            GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;
@@ -38,9 +38,9 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
-            var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
+            var diceKeyboard = keyboardBuilder.BuildDiceSelectionButtons(turn);
+            var saveAndRollButton = keyboardBuilder.BuildSaveAndRollButton(turn);
+            var saveAndEndButton = keyboardBuilder.BuildSaveAndEndButton(turn);
 
             diceKeyboard.AddNewRow(saveAndRollButton);
             diceKeyboard.AddNewRow(saveAndEndButton);

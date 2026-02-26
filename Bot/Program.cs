@@ -26,7 +26,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();
 
-        services.AddScoped<GameKeyboardFactory>();
+        services.AddScoped<GameButtonsBuilder>();
         services.AddScoped<GameCallbackDataSerializer>();
         services.AddScoped<ScoreCalculator>();
         

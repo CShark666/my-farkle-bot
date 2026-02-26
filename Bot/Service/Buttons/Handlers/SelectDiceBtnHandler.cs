@@ -8,7 +8,7 @@ namespace Bot
     public class SelectDiceBtnHandler(
         TelegramBotClient bot,
         BotContext botContext,
-        GameKeyboardFactory keyboardBuilder,
+        GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
@@ -35,26 +35,26 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
-            var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
+            var diceKeyboard = keyboardBuilder.BuildDiceSelectionButtons(turn);
+            var saveAndRollButton = keyboardBuilder.BuildSaveAndRollButton(turn);
+            var saveAndEndButton = keyboardBuilder.BuildSaveAndEndButton(turn);
 
             diceKeyboard.AddNewRow(saveAndRollButton);
             diceKeyboard.AddNewRow(saveAndEndButton);
 
             // Creating bot response
-            var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
-            var textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            var queryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
+            var textMsg = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
             try
             {
                 await bot.EditMessageText(
                     chatId: turn.Player.ChatId,
                     messageId: query.Message!.Id,
-                    text: textMessage,
+                    text: textMsg,
                     replyMarkup: diceKeyboard);
 
-                await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
+                await bot.AnswerCallbackQuery(query.Id, queryMsg);
             }
             catch (ApiRequestException ex)
                 when (ex.Message.Contains("message is not modified"))
