@@ -2,19 +2,27 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class GameKeyboardFactory(GameCallbackDataSerializer gameCallbackDataSerializer)
+    public class GameButtonsBuilder(GameCallbackDataSerializer gameCallbackDataSerializer)
     {
         private const int ButtonsPerRow = 3;
         private const string SelectedDiceEmoji = "✅";
-        private const string UnselectedDiceEmoji = "🔄";
+        private const string UnselectedDiceEmoji = "🎲";
 
-        public InlineKeyboardMarkup BuildDiceSelectionKeyboard(Turn turn)
+        public InlineKeyboardMarkup BuildTurnKeyboard(Turn turn)
+        {
+            var keyboard = BuildDiceSelectionButtons(turn);
+            keyboard.AddNewRow(BuildSaveAndRollButton(turn));
+            keyboard.AddNewRow(BuildSaveAndEndButton(turn));
+
+            return keyboard;
+        }
+        public InlineKeyboardMarkup BuildDiceSelectionButtons(Turn turn)
         {
             var keyboard = new InlineKeyboardMarkup();
 
             for (int i = 0; i < turn.DiceValue.Length; i++)
             {
-                var button = CreateDiceToggleButton(turn, i);
+                var button = CreateDiceButton(turn, i);
 
                 if (i % ButtonsPerRow == 0)
                     keyboard.AddNewRow(button);
@@ -24,31 +32,11 @@ namespace Bot
 
             return keyboard;
         }
-        public InlineKeyboardButton SaveAndRollButton(Turn turn)
-        {
-            var text = "🔄 Записати очки й продовжити.";
-            var callbackData = gameCallbackDataSerializer.Serialize(
-                CallbackActionType.SaveAndRoll,
-                turn.PlayerChatId,
-                turn.PlayerUserId,
-                turn.GameId);
-            
-            return InlineKeyboardButton.WithCallbackData(text, callbackData);
-        }
-
-        internal InlineKeyboardButton SaveAndEndButton(Turn turn)
-        {
-            var text = "✅ Записати очки й закінчити.";
-            var callbackData = gameCallbackDataSerializer.Serialize(
-                CallbackActionType.SaveAndEnd,
-                turn.PlayerChatId,
-                turn.PlayerUserId,
-                turn.GameId);
-            
-            return InlineKeyboardButton.WithCallbackData(text, callbackData);
-        }
-
-        private InlineKeyboardButton CreateDiceToggleButton(Turn turn, int diceIndex)
+        public InlineKeyboardButton BuildSaveAndRollButton(Turn turn) =>
+            BuildActionButton("🔄 Записати очки й продовжити.", CallbackActionType.SaveAndRoll, turn);
+        public InlineKeyboardButton BuildSaveAndEndButton(Turn turn) =>
+             BuildActionButton("✅ Записати очки й закінчити.", CallbackActionType.SaveAndEnd, turn);
+        private InlineKeyboardButton CreateDiceButton(Turn turn, int diceIndex)
         {
             bool isSelected = turn.SelectedDice.Contains(diceIndex);
             var emoji = isSelected ? SelectedDiceEmoji : UnselectedDiceEmoji;
@@ -62,6 +50,12 @@ namespace Bot
                 diceIndex
             );
 
+            return InlineKeyboardButton.WithCallbackData(text, callbackData);
+        }
+        private InlineKeyboardButton BuildActionButton(string text, CallbackActionType actionType, Turn turn)
+        {
+            var callbackData = gameCallbackDataSerializer.Serialize(
+                    actionType, turn.PlayerChatId, turn.PlayerUserId, turn.GameId);
             return InlineKeyboardButton.WithCallbackData(text, callbackData);
         }
     }

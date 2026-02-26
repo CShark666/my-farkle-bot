@@ -35,7 +35,7 @@ namespace Bot
                 DiceValue[i] = Random.Shared.Next(1, 7);
             }
         }
-        public void SaveAdnRoll()
+        public void SaveAndRoll()
         {
             SaveCurrentScore();
             ResetDiceState();

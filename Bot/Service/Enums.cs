@@ -2,10 +2,6 @@ namespace Bot
 {
     public enum CallbackActionType
     {
-        HelloFirst,
-        HelloSecond,
-        ThrowDice,
-        Reroll,
         StartGame,
         SelectDice,
         SaveAndRoll,
@@ -17,9 +13,10 @@ namespace Bot
         InProgress,
         Finished
     }
-    public enum GameCallback
+    public enum ButtonType
     {
-        RollDice,
-        SelectDice
+        DiceKeyboard,
+        SaveAndRoll,
+        SaveAndEnd
     }
 }

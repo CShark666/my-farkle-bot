@@ -8,7 +8,7 @@ namespace Bot
     public class SelectDiceBtnHandler(
         TelegramBotClient bot,
         BotContext botContext,
-        GameKeyboardFactory keyboardBuilder,
+        GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
@@ -35,32 +35,15 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionKeyboard(turn);
-            var saveAndRollButton = keyboardBuilder.SaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.SaveAndEndButton(turn);
-
-            diceKeyboard.AddNewRow(saveAndRollButton);
-            diceKeyboard.AddNewRow(saveAndEndButton);
+            var keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
 
             // Creating bot response
-            var callbackQueryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
-            var textMessage = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            var queryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
+            var textMsg = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
-            try
-            {
-                await bot.EditMessageText(
-                    chatId: turn.Player.ChatId,
-                    messageId: query.Message!.Id,
-                    text: textMessage,
-                    replyMarkup: diceKeyboard);
-
-                await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message.Contains("message is not modified"))
-            {
-
-            }
+            await bot.SafeEditAndAnswerAsync(
+                callbackData.ChatId, query.Message!.Id, textMsg,
+                keyboard, query.Id, queryMsg);
         }
     }
 }

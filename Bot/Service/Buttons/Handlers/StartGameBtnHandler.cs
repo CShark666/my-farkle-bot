@@ -10,7 +10,7 @@ namespace Bot
         IDateTimeProvider dateTimeProvider,
         BotContext botContext,
         UserRepository userRepository,
-        GameKeyboardFactory keyboardBuilder,
+        GameButtonsBuilder keyboardBuilder,
         ScoreCalculator scoreCalculator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartGame;
@@ -31,8 +31,8 @@ namespace Bot
                                             query.From.FirstName));
 
             //
-            var callbackQueryMsg = string.Empty;
-            var textMessage = string.Empty;
+            var queryMsg = string.Empty;
+            var textMsg = string.Empty;
             var keyboard = new InlineKeyboardMarkup();
 
             // Creating game
@@ -48,33 +48,23 @@ namespace Bot
 
             if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
             {
-                callbackQueryMsg = "Невдача :с";
-                textMessage = $"Ви програли!";
+                queryMsg = "Невдача :с";
+                textMsg = $"Ви програли!";
                 keyboard = InlineKeyboardMarkup.Empty();
             }
             else
             {
                 // Creating buttons
-                keyboard = keyboardBuilder.BuildDiceSelectionKeyboard(game.CurrentTurn);
+                keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
 
                 // Creating bot response
-                callbackQueryMsg = $"Ви прийняли виклик{player1.FirstName}";
-                textMessage = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
+                queryMsg = $"Ви прийняли виклик{player1.FirstName}";
+                textMsg = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
             }
-            try
-            {
-                await bot.EditMessageText(
-                    chatId: player1.ChatId,
-                    messageId: query.Message!.Id,
-                    text: textMessage,
-                    replyMarkup: keyboard);
-                await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message.Contains("message is not modified"))
-            {
-
-            }
+            
+            await bot.SafeEditAndAnswerAsync(
+                callbackData.ChatId, query.Message!.Id, textMsg,
+                keyboard, query.Id, queryMsg);
         }
     }
 }
