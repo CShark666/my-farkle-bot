@@ -35,32 +35,15 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionButtons(turn);
-            var saveAndRollButton = keyboardBuilder.BuildSaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.BuildSaveAndEndButton(turn);
-
-            diceKeyboard.AddNewRow(saveAndRollButton);
-            diceKeyboard.AddNewRow(saveAndEndButton);
+            var keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
 
             // Creating bot response
             var queryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
             var textMsg = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
-            try
-            {
-                await bot.EditMessageText(
-                    chatId: turn.Player.ChatId,
-                    messageId: query.Message!.Id,
-                    text: textMsg,
-                    replyMarkup: diceKeyboard);
-
-                await bot.AnswerCallbackQuery(query.Id, queryMsg);
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message.Contains("message is not modified"))
-            {
-
-            }
+            await bot.SafeEditAndAnswerAsync(
+                callbackData.ChatId, query.Message!.Id, textMsg,
+                keyboard, query.Id, queryMsg);
         }
     }
 }

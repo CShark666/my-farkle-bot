@@ -22,7 +22,7 @@ namespace Bot
                         .Include(g => g.Player1)
                         .Include(g => g.Player2)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
-            
+
             var turn = game!.CurrentTurn;
             var currentScore = turn!.CurrentScore;
 
@@ -31,39 +31,22 @@ namespace Bot
             turn.Player.TotalScore += turn.TotalScore;
 
             var newPlayer = game.GetOpponent();
-            
+
             game.StartTurn(newPlayer);
             game.CurrentTurn!.RollDice();
 
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var diceKeyboard = keyboardBuilder.BuildDiceSelectionButtons(turn);
-            var saveAndRollButton = keyboardBuilder.BuildSaveAndRollButton(turn);
-            var saveAndEndButton = keyboardBuilder.BuildSaveAndEndButton(turn);
-
-            diceKeyboard.AddNewRow(saveAndRollButton);
-            diceKeyboard.AddNewRow(saveAndEndButton);
+            var keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn!);
 
             // Creating bot response
             var callbackQueryMsg = $" ";
             var textMessage = $"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
 
-            try
-            {
-                await bot.EditMessageText(
-                    chatId: turn.Player.ChatId,
-                    messageId: query.Message!.Id,
-                    text: textMessage,
-                    replyMarkup: diceKeyboard);
-
-                await bot.AnswerCallbackQuery(query.Id, callbackQueryMsg);
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message.Contains("message is not modified"))
-            {
-
-            }
+            await bot.SafeEditAndAnswerAsync(
+                callbackData.ChatId, query.Message!.Id, textMessage,
+                keyboard, query.Id, callbackQueryMsg);
         }
     }
 }

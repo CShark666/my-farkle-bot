@@ -8,6 +8,14 @@ namespace Bot
         private const string SelectedDiceEmoji = "✅";
         private const string UnselectedDiceEmoji = "🎲";
 
+        public InlineKeyboardMarkup BuildTurnKeyboard(Turn turn)
+        {
+            var keyboard = BuildDiceSelectionButtons(turn);
+            keyboard.AddNewRow(BuildSaveAndRollButton(turn));
+            keyboard.AddNewRow(BuildSaveAndEndButton(turn));
+
+            return keyboard;
+        }
         public InlineKeyboardMarkup BuildDiceSelectionButtons(Turn turn)
         {
             var keyboard = new InlineKeyboardMarkup();

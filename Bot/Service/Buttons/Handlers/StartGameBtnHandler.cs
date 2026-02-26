@@ -55,26 +55,16 @@ namespace Bot
             else
             {
                 // Creating buttons
-                keyboard = keyboardBuilder.BuildDiceSelectionButtons(game.CurrentTurn);
+                keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
 
                 // Creating bot response
                 queryMsg = $"Ви прийняли виклик{player1.FirstName}";
                 textMsg = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
             }
-            try
-            {
-                await bot.EditMessageText(
-                    chatId: player1.ChatId,
-                    messageId: query.Message!.Id,
-                    text: textMsg,
-                    replyMarkup: keyboard);
-                await bot.AnswerCallbackQuery(query.Id, queryMsg);
-            }
-            catch (ApiRequestException ex)
-                when (ex.Message.Contains("message is not modified"))
-            {
-
-            }
+            
+            await bot.SafeEditAndAnswerAsync(
+                callbackData.ChatId, query.Message!.Id, textMsg,
+                keyboard, query.Id, queryMsg);
         }
     }
 }
