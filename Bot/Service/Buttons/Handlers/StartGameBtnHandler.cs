@@ -1,5 +1,4 @@
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -11,7 +10,8 @@ namespace Bot
         BotContext botContext,
         UserRepository userRepository,
         GameButtonsBuilder keyboardBuilder,
-        ScoreCalculator scoreCalculator) : IButtonsHandler
+        ScoreCalculator scoreCalculator,
+        GameMessageBuilder messageBuilder) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartGame;
 
@@ -30,11 +30,6 @@ namespace Bot
                                             query.From.Username!,
                                             query.From.FirstName));
 
-            //
-            var queryMsg = string.Empty;
-            var textMsg = string.Empty;
-            var keyboard = new InlineKeyboardMarkup();
-
             // Creating game
             var game = new Game(player1, player2, dateTimeProvider.UtcNow);
             await botContext.Games.AddAsync(game);
@@ -46,25 +41,25 @@ namespace Bot
 
             await botContext.SaveChangesAsync();
 
+
+            BotResponse response;
+            var keyboard = new InlineKeyboardMarkup();
+
+            // Farkle check
             if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
             {
-                queryMsg = "Невдача :с";
-                textMsg = $"Ви програли!";
+                response = messageBuilder.BuildFarkleResponse(game.CurrentTurn);
                 keyboard = InlineKeyboardMarkup.Empty();
             }
             else
             {
-                // Creating buttons
                 keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
-
-                // Creating bot response
-                queryMsg = $"Ви прийняли виклик{player1.FirstName}";
-                textMsg = $"@{player2.UserName}(p2) прийняв виклик @{player1.UserName}(p1).\n @{player1.UserName}(p1) ващ хід:";
+                response = messageBuilder.BuildStartTurnResponse(game);
             }
             
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, textMsg,
-                keyboard, query.Id, queryMsg);
+                callbackData.ChatId, query.Message!.Id, response.Text,
+                keyboard, query.Id, response.QueryMessage);
         }
     }
 }

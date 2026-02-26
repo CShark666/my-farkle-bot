@@ -10,7 +10,8 @@ namespace Bot
         BotContext botContext,
         GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
-        ScoreCalculator scoreCalculator) : IButtonsHandler
+        ScoreCalculator scoreCalculator,
+        GameMessageBuilder messageBuilder) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SelectDice;
 
@@ -38,12 +39,11 @@ namespace Bot
             var keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
 
             // Creating bot response
-            var queryMsg = $"Ви обрали {turn.DiceValue[selectedDiceId]}";
-            var textMsg = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            var response = messageBuilder.BuildSelectDiceResponse(turn, selectedDiceId);
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, textMsg,
-                keyboard, query.Id, queryMsg);
+                callbackData.ChatId, query.Message!.Id, response.Text,
+                keyboard, query.Id, response.QueryMessage);
         }
     }
 }
