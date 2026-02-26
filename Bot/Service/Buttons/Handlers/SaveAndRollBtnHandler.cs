@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -11,7 +10,8 @@ namespace Bot
         BotContext botContext,
         GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
-        ScoreCalculator scoreCalculator) : IButtonsHandler
+        ScoreCalculator scoreCalculator,
+        GameMessageBuilder messageBuilder) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndRoll;
 
@@ -24,10 +24,7 @@ namespace Bot
                         .Include(g => g.CurrentTurn!.Player)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
 
-
-            // Creating variables
-            var queryMsg = string.Empty;
-            var textMsg = string.Empty;
+            BotResponse response;
             var keyboard = new InlineKeyboardMarkup();
             var turn = game!.CurrentTurn;
 
@@ -37,23 +34,18 @@ namespace Bot
 
             if (scoreCalculator.IsFarkle(turn.DiceValue))
             {
-                queryMsg = "Невдача :с";
-                textMsg = $"Ви програли! Та втратили {turn.TotalScore}";
+                response = messageBuilder.BuildFarkleResponse(game.CurrentTurn!);
                 keyboard = InlineKeyboardMarkup.Empty();
             }
             else
             {
-                // Creating buttons
                 keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
-
-                // Creating bot response
-                queryMsg = $"Супер! Ви отримали {turn.CurrentScore} очок!";
-                textMsg = $"🎲 Хід @{turn.Player.UserName} (p1)\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+                response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn!);
             }
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, textMsg,
-                keyboard, query.Id, queryMsg);
+                callbackData.ChatId, query.Message!.Id, response.Text,
+                keyboard, query.Id, response.QueryMessage);
         }
     }
 }

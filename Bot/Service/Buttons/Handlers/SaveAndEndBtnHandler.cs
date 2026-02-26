@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -9,7 +10,8 @@ namespace Bot
             TelegramBotClient bot,
             BotContext botContext,
             GameButtonsBuilder keyboardBuilder,
-            GameCallbackDataSerializer callbackDataSerializer) : IButtonsHandler
+            GameCallbackDataSerializer callbackDataSerializer,
+            GameMessageBuilder messageBuilder) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;
 
@@ -38,15 +40,15 @@ namespace Bot
             await botContext.SaveChangesAsync();
 
             // Creating buttons
-            var keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn!);
-
+            // var keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn!);
+            var keyboard = InlineKeyboardMarkup.Empty();
+            
             // Creating bot response
-            var callbackQueryMsg = $" ";
-            var textMessage = $"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}\nРахунок вибраних кубиків: {turn.CurrentScore}";
+            BotResponse response = messageBuilder.BuildSaveAndEndResponse(turn);
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, textMessage,
-                keyboard, query.Id, callbackQueryMsg);
+                callbackData.ChatId, query.Message!.Id, response.Text,
+                keyboard, query.Id, response.QueryMessage);
         }
     }
 }

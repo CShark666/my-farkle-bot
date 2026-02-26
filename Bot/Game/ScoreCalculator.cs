@@ -2,13 +2,13 @@ namespace Bot
 {
     public class ScoreCalculator
     {
-        private List<IRule> _rules = new List<IRule>
-        {
+        private readonly List<IRule> _rules =
+        [
             new StraightRule(),
             new ThreeOfAKindRule(),
             new SingleOneRule(),
             new SingleFiveRule(),
-        };
+        ];
         public int Calculate(int[] dice)
         {
             var total = 0;
