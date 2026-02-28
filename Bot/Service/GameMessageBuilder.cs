@@ -29,8 +29,13 @@ namespace Bot
             new($"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}\nРахунок комбінації: {turn.CurrentScore}",
             $"Ви обрали {turn.DiceValue[diceId]}");
 
-        public BotResponse BuildSaveAndEndResponse(Turn turn) =>
-            new( $"🎲 Хід @{turn.Player.UserName} завершив хід.\nВаш поточний рахунок: {turn.Player.TotalScore}\nЗа цей раунд ви отримали: {turn.TotalScore}\n",
+        public BotResponse BuildSaveAndEndResponse(Game game) =>
+            new( $"🎲 Хід @{game.CurrentTurn!.Player.UserName} завершив хід.\nВаш поточний рахунок: {game.CurrentTurn!.Player.TotalScore}\nЗа цей раунд ви отримали: {game.CurrentTurn!.TotalScore}"+
+            $"\n🎲Наступний раунд за @{game.GetOpponent().UserName}. Бажаєте продовжити?",
             $"Хід успішно завершено!");
+
+        public BotResponse BuildSurrenderResponse(Game game) =>
+            new($"Переможець: @{game.Winner!.UserName}!",
+            "Ви здалися...");
     }
 }

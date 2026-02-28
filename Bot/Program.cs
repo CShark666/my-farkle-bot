@@ -37,6 +37,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<IButtonsHandler, SelectDiceBtnHandler>();
         services.AddTransient<IButtonsHandler, SaveAndRollBtnHandler>();
         services.AddTransient<IButtonsHandler, SaveAndEndBtnHandler>();
+        services.AddTransient<IButtonsHandler, StartNewTurnBtnHandler>();
+        services.AddTransient<IButtonsHandler, SurrenderBtnHandler>();
 
 
         services.AddHostedService<BotService>();

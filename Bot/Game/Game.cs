@@ -7,6 +7,7 @@ namespace Bot
         public int Id { get; set; }
         public GameStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
+        public User? Winner { get; set; }
         public long Player1ChatId { get; set; }
         public long Player1UserId { get; set; }
         public long Player2ChatId { get; set; }
@@ -38,5 +39,9 @@ namespace Bot
             Turns.Add(turn);
             CurrentTurn = turn;
         }
+        public User? GetOpponentWithId(long userId) =>
+            Player1.UserId == userId
+            ? Player2
+            : Player1;
     }
 }

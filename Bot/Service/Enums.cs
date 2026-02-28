@@ -5,7 +5,9 @@ namespace Bot
         StartGame,
         SelectDice,
         SaveAndRoll,
-        SaveAndEnd
+        SaveAndEnd,
+        StartTurn,
+        Surrender
     }
     public enum GameStatus
     {

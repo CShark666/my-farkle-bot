@@ -16,7 +16,16 @@ namespace Bot
 
             return keyboard;
         }
-        public InlineKeyboardMarkup BuildDiceSelectionButtons(Turn turn)
+        public InlineKeyboardMarkup BuildEndTurnKeyboard(Game game)
+        {
+            InlineKeyboardMarkup keyboard = 
+                BuildActionButton("Почати раунд", CallbackActionType.StartTurn, game.CurrentTurn!);
+            keyboard.AddNewRow(
+                BuildActionButton("Здатися.", CallbackActionType.Surrender, game.CurrentTurn!));
+
+            return keyboard;
+        }
+        private InlineKeyboardMarkup BuildDiceSelectionButtons(Turn turn)
         {
             var keyboard = new InlineKeyboardMarkup();
 
@@ -32,9 +41,9 @@ namespace Bot
 
             return keyboard;
         }
-        public InlineKeyboardButton BuildSaveAndRollButton(Turn turn) =>
+        private InlineKeyboardButton BuildSaveAndRollButton(Turn turn) =>
             BuildActionButton("🔄 Записати очки й продовжити.", CallbackActionType.SaveAndRoll, turn);
-        public InlineKeyboardButton BuildSaveAndEndButton(Turn turn) =>
+        private InlineKeyboardButton BuildSaveAndEndButton(Turn turn) =>
              BuildActionButton("✅ Записати очки й закінчити.", CallbackActionType.SaveAndEnd, turn);
         private InlineKeyboardButton CreateDiceButton(Turn turn, int diceIndex)
         {

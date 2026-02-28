@@ -1,32 +1,31 @@
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class SaveAndEndBtnHandler(
+    public class StartNewTurnBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameMessageBuilder messageBuilder) : IButtonsHandler
+            GameMessageBuilder messageBuilder,
+            ScoreCalculator scoreCalculator) : IButtonsHandler
     {
-        public CallbackActionType Key => CallbackActionType.SaveAndEnd;
+        public CallbackActionType Key => CallbackActionType.StartTurn;
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             BotResponse response;
             var keyboard = new InlineKeyboardMarkup();
 
-            if (!callbackData.MatchesId(query.From.Id))
+            if (callbackData.MatchesId(query.From.Id))
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
             else
             {
-                // Getting game data
                 callbackDataSerializer.Deserialize(query.Data!, out var gameId);
                 var game = await botContext.Games
                             .Include(g => g.CurrentTurn)
@@ -34,20 +33,27 @@ namespace Bot
                             .Include(g => g.Player2)
                             .FirstOrDefaultAsync(g => g.Id == gameId);
 
-                var turn = game!.CurrentTurn;
-                var currentScore = turn!.CurrentScore;
-
-                // Save and end turn
-                turn.TotalScore += turn.CurrentScore;
-                turn.Player.CurrentScore += turn.TotalScore;
+                var player = game!.GetOpponent();
+                game.StartTurn(player);
+                game.CurrentTurn!.RollDice();
 
                 await botContext.SaveChangesAsync();
 
 
-                keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
-                response = messageBuilder.BuildSaveAndEndResponse(game);
-            }
+                if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
+                {
+                    response = messageBuilder.BuildFarkleResponse(game.CurrentTurn);
+                    keyboard = InlineKeyboardMarkup.Empty();
+                }
+                else
+                {
+                    keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
+                    response = messageBuilder.BuildStartTurnResponse(game);
+                }
 
+                response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn);
+                keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
+            }
             await bot.SafeEditAndAnswerAsync(
                 callbackData.ChatId, query.Message!.Id, response.Text,
                 keyboard, query.Id, response.QueryMessage);
