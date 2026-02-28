@@ -4,9 +4,11 @@ namespace Bot
     {
         public long ChatId { get; set; }
         public long UserId { get; set; }
-        public string UserName { get; set; }
-        public string FirstName { get; set; }
+        public string UserName { get; set; } = "NoName";
+        public string FirstName { get; set; } = "NoName";
         public int TotalScore { get; set; } = 0;
+        public int CurrentScore { get; set; } = 0;
+
         public User(long chatId, long userId, string userName, string firstName)
         {
             ChatId = chatId;

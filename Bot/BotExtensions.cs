@@ -15,11 +15,8 @@ namespace Bot
             {
                 try
                 {
-                    await bot.EditMessageText(
-                        chatId: chatId,
-                        messageId: messageId,
-                        text: text,
-                        replyMarkup: keyboard);
+                    if (text != string.Empty)
+                        await bot.EditMessageText(chatId, messageId, text, replyMarkup: keyboard);
 
                     await bot.AnswerCallbackQuery(callbackQueryId, queryMsg);
                 }

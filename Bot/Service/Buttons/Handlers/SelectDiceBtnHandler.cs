@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -17,33 +17,43 @@ namespace Bot
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            // Getting game data
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
+            BotResponse response;
+            var keyboard = InlineKeyboardMarkup.Empty();
 
-            var game = await botContext.Games
-                        .Include(g => g.CurrentTurn)
-                        .Include(g => g.CurrentTurn!.Player)
-                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            if (!callbackData.MatchesId(query.From.Id))
+            {
+                response = messageBuilder.BuildWrongTurnResponse();
+            }
+            else
+            {
+                // Getting game data
+                callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
 
-            // Add selected dice
-            var turn = game!.CurrentTurn;
-            turn!.AddOrRemoveDiceSelection(selectedDiceId);
+                var game = await botContext.Games
+                            .Include(g => g.CurrentTurn)
+                            .Include(g => g.CurrentTurn!.Player)
+                            .FirstOrDefaultAsync(g => g.Id == gameId);
 
-            // Calculate score selected dice
-            var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
-            turn.CurrentScore = scoreCalculator.Calculate(selectedDice);
+                // Add selected dice
+                var turn = game!.CurrentTurn;
+                turn!.AddOrRemoveDiceSelection(selectedDiceId);
 
-            await botContext.SaveChangesAsync();
+                // Calculate score selected dice
+                var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
+                turn.CurrentScore = scoreCalculator.Calculate(selectedDice);
 
-            // Creating buttons
-            var keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
+                await botContext.SaveChangesAsync();
 
-            // Creating bot response
-            var response = messageBuilder.BuildSelectDiceResponse(turn, selectedDiceId);
+                // Creating buttons
+                keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
+
+                // Creating bot response
+                response = messageBuilder.BuildSelectDiceResponse(turn, selectedDiceId);
+            }
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, response.Text,
-                keyboard, query.Id, response.QueryMessage);
+                    callbackData.ChatId, query.Message!.Id, response.Text,
+                    keyboard, query.Id, response.QueryMessage);
         }
     }
 }

@@ -17,34 +17,44 @@ namespace Bot
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            // Getting game data
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-            var game = await botContext.Games
-                        .Include(g => g.CurrentTurn)
-                        .Include(g => g.Player1)
-                        .Include(g => g.Player2)
-                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            BotResponse response;
+            var keyboard = new InlineKeyboardMarkup();
 
-            var turn = game!.CurrentTurn;
-            var currentScore = turn!.CurrentScore;
+            if (!callbackData.MatchesId(query.From.Id))
+            {
+                response = messageBuilder.BuildWrongTurnResponse();
+            }
+            else
+            {
+                // Getting game data
+                callbackDataSerializer.Deserialize(query.Data!, out var gameId);
+                var game = await botContext.Games
+                            .Include(g => g.CurrentTurn)
+                            .Include(g => g.Player1)
+                            .Include(g => g.Player2)
+                            .FirstOrDefaultAsync(g => g.Id == gameId);
 
-            // Save and end turn
-            turn.TotalScore += turn.CurrentScore;
-            turn.Player.TotalScore += turn.TotalScore;
+                var turn = game!.CurrentTurn;
+                var currentScore = turn!.CurrentScore;
 
-            var newPlayer = game.GetOpponent();
+                // Save and end turn
+                turn.TotalScore += turn.CurrentScore;
+                turn.Player.TotalScore += turn.TotalScore;
 
-            game.StartTurn(newPlayer);
-            game.CurrentTurn!.RollDice();
+                var newPlayer = game.GetOpponent();
 
-            await botContext.SaveChangesAsync();
+                game.StartTurn(newPlayer);
+                game.CurrentTurn!.RollDice();
 
-            // Creating buttons
-            // var keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn!);
-            var keyboard = InlineKeyboardMarkup.Empty();
-            
-            // Creating bot response
-            BotResponse response = messageBuilder.BuildSaveAndEndResponse(turn);
+                await botContext.SaveChangesAsync();
+
+                // Creating buttons
+                // var keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn!);
+                keyboard = InlineKeyboardMarkup.Empty();
+
+                // Creating bot response
+                response = messageBuilder.BuildSaveAndEndResponse(turn);
+            }
 
             await bot.SafeEditAndAnswerAsync(
                 callbackData.ChatId, query.Message!.Id, response.Text,

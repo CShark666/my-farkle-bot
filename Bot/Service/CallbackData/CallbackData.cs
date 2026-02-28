@@ -19,5 +19,6 @@ namespace Bot
             ChatId = long.Parse(fields[1]);
             UserId = long.Parse(fields[2]);
         }
+        public bool MatchesId(long userId) => UserId == userId;
     }
 }

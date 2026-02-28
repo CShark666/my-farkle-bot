@@ -5,6 +5,14 @@ namespace Bot
     public record BotResponse(string Text, string QueryMessage);
     public class GameMessageBuilder
     {
+        public BotResponse BuildWrongTurnResponse() =>
+            new(string.Empty,
+                "Це не ваш хід!");
+
+        public BotResponse BuildWrongPlayerResponse() =>
+                new(string.Empty,
+                "Ви не можете грати проти себе!");
+
         public BotResponse BuildFarkleResponse(Turn turn) =>
             new($"Ви програли! Та втратили {turn.TotalScore}",
                 "Невдача :с");

@@ -17,49 +17,56 @@ namespace Bot
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            // Creating players
-            var player1 = await userRepository.GetOrCreateUserAsync(
-                                        new User(
-                                            callbackData.ChatId,
-                                            callbackData.UserId));
-
-            var player2 = await userRepository.GetOrCreateUserAsync(
-                                        new User(
-                                            callbackData.ChatId,
-                                            query.From.Id,
-                                            query.From.Username!,
-                                            query.From.FirstName));
-
-            // Creating game
-            var game = new Game(player1, player2, dateTimeProvider.UtcNow);
-            await botContext.Games.AddAsync(game);
-            await botContext.SaveChangesAsync();
-
-            // Creating turn, roll dice and save it
-            game.StartTurn(player1);
-            game.CurrentTurn!.RollDice();
-
-            await botContext.SaveChangesAsync();
-
-
             BotResponse response;
-            var keyboard = new InlineKeyboardMarkup();
+            var keyboard = InlineKeyboardMarkup.Empty();
 
-            // Farkle check
-            if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
+            if (callbackData.MatchesId(query.From.Id))
             {
-                response = messageBuilder.BuildFarkleResponse(game.CurrentTurn);
-                keyboard = InlineKeyboardMarkup.Empty();
+                response = messageBuilder.BuildWrongPlayerResponse();
             }
             else
             {
-                keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
-                response = messageBuilder.BuildStartTurnResponse(game);
+                // Creating players
+                var player1 = await userRepository.GetOrCreateUserAsync(
+                                            new User(
+                                                callbackData.ChatId,
+                                                callbackData.UserId));
+
+                var player2 = await userRepository.GetOrCreateUserAsync(
+                                            new User(
+                                                callbackData.ChatId,
+                                                query.From.Id,
+                                                query.From.Username!,
+                                                query.From.FirstName));
+
+                // Creating game
+                var game = new Game(player1, player2, dateTimeProvider.UtcNow);
+                await botContext.Games.AddAsync(game);
+                await botContext.SaveChangesAsync();
+
+                // Creating turn, roll dice and save it
+                game.StartTurn(player1);
+                game.CurrentTurn!.RollDice();
+
+                await botContext.SaveChangesAsync();
+
+
+                // Farkle check
+                if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
+                {
+                    response = messageBuilder.BuildFarkleResponse(game.CurrentTurn);
+                    keyboard = InlineKeyboardMarkup.Empty();
+                }
+                else
+                {
+                    keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
+                    response = messageBuilder.BuildStartTurnResponse(game);
+                }
             }
-            
+
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, response.Text,
-                keyboard, query.Id, response.QueryMessage);
+                    callbackData.ChatId, query.Message!.Id, response.Text,
+                    keyboard, query.Id, response.QueryMessage);
         }
     }
 }

@@ -17,35 +17,45 @@ namespace Bot
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            // Getting game data
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-            var game = await botContext.Games
-                        .Include(g => g.CurrentTurn)
-                        .Include(g => g.CurrentTurn!.Player)
-                        .FirstOrDefaultAsync(g => g.Id == gameId);
-
             BotResponse response;
             var keyboard = new InlineKeyboardMarkup();
-            var turn = game!.CurrentTurn;
 
-            // Save score and roll remaining dice 
-            turn!.SaveAndRoll();
-            await botContext.SaveChangesAsync();
-
-            if (scoreCalculator.IsFarkle(turn.DiceValue))
+            if (!callbackData.MatchesId(query.From.Id))
             {
-                response = messageBuilder.BuildFarkleResponse(game.CurrentTurn!);
-                keyboard = InlineKeyboardMarkup.Empty();
+                response = messageBuilder.BuildWrongTurnResponse();
+
             }
             else
             {
-                keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
-                response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn!);
+                // Getting game data
+                callbackDataSerializer.Deserialize(query.Data!, out var gameId);
+                var game = await botContext.Games
+                            .Include(g => g.CurrentTurn)
+                            .Include(g => g.CurrentTurn!.Player)
+                            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+
+                var turn = game!.CurrentTurn;
+
+                // Save score and roll remaining dice 
+                turn!.SaveAndRoll();
+                await botContext.SaveChangesAsync();
+
+                if (scoreCalculator.IsFarkle(turn.DiceValue))
+                {
+                    response = messageBuilder.BuildFarkleResponse(game.CurrentTurn!);
+                    keyboard = InlineKeyboardMarkup.Empty();
+                }
+                else
+                {
+                    keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
+                    response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn!);
+                }
             }
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, response.Text,
-                keyboard, query.Id, response.QueryMessage);
+                    callbackData.ChatId, query.Message!.Id, response.Text,
+                    keyboard, query.Id, response.QueryMessage);
         }
     }
 }
