@@ -7,6 +7,8 @@ namespace Bot
         private const int ButtonsPerRow = 3;
         private const string SelectedDiceEmoji = "✅";
         private const string UnselectedDiceEmoji = "🎲";
+        private const KeyboardButtonStyle SelectedButton = KeyboardButtonStyle.Success;
+        private const KeyboardButtonStyle UnselectedButton = KeyboardButtonStyle.Primary;
 
         public InlineKeyboardMarkup BuildTurnKeyboard(Turn turn)
         {
@@ -18,13 +20,15 @@ namespace Bot
         }
         public InlineKeyboardMarkup BuildEndTurnKeyboard(Game game)
         {
-            InlineKeyboardMarkup keyboard = 
-                BuildActionButton("Почати раунд", CallbackActionType.StartTurn, game.CurrentTurn!);
+            InlineKeyboardMarkup keyboard =
+                BuildActionButtonStyle("Почати раунд", CallbackActionType.StartTurn, game.CurrentTurn!, KeyboardButtonStyle.Success);
             keyboard.AddNewRow(
-                BuildActionButton("Здатися.", CallbackActionType.Surrender, game.CurrentTurn!));
+                BuildActionButtonStyle("Здатися.", CallbackActionType.Surrender, game.CurrentTurn!, KeyboardButtonStyle.Danger));
 
             return keyboard;
         }
+        public InlineKeyboardMarkup BuildStartGameKeyboard(string data) =>
+            new InlineKeyboardButton("Прийняти виклик!", data) { Style = KeyboardButtonStyle.Success };
         private InlineKeyboardMarkup BuildDiceSelectionButtons(Turn turn)
         {
             var keyboard = new InlineKeyboardMarkup();
@@ -48,9 +52,9 @@ namespace Bot
         private InlineKeyboardButton CreateDiceButton(Turn turn, int diceIndex)
         {
             bool isSelected = turn.SelectedDice.Contains(diceIndex);
-            var emoji = isSelected ? SelectedDiceEmoji : UnselectedDiceEmoji;
+            var style = isSelected ? SelectedButton : UnselectedButton;
 
-            var text = $"{turn.DiceValue[diceIndex]} {emoji}";
+            var text = $"{turn.DiceValue[diceIndex]}";
             var callbackData = gameCallbackDataSerializer.Serialize(
                 CallbackActionType.SelectDice,
                 turn.PlayerChatId,
@@ -59,7 +63,7 @@ namespace Bot
                 diceIndex
             );
 
-            return InlineKeyboardButton.WithCallbackData(text, callbackData);
+            return new InlineKeyboardButton(text, callbackData) { Style = style };
         }
         private InlineKeyboardButton BuildActionButton(string text, CallbackActionType actionType, Turn turn)
         {
@@ -67,5 +71,12 @@ namespace Bot
                     actionType, turn.PlayerChatId, turn.PlayerUserId, turn.GameId);
             return InlineKeyboardButton.WithCallbackData(text, callbackData);
         }
+        private InlineKeyboardButton BuildActionButtonStyle(string text, CallbackActionType actionType, Turn turn, KeyboardButtonStyle style)
+        {
+            var callbackData = gameCallbackDataSerializer.Serialize(
+                    actionType, turn.PlayerChatId, turn.PlayerUserId, turn.GameId);
+            return new InlineKeyboardButton(text, callbackData) { Style = style };
+        }
+
     }
 }

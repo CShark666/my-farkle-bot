@@ -5,7 +5,8 @@ namespace Bot.Service.Commands.Handlers
 {
     public class StartGameCmdHandler(
         TelegramBotClient bot,
-        CallbackData callbackData) : ICommandHandler
+        CallbackData callbackData,
+        GameButtonsBuilder buttonsBuilder) : ICommandHandler
     {
         public string Key => "/startgame";
 
@@ -23,9 +24,7 @@ namespace Bot.Service.Commands.Handlers
                 msg = $"@{user.UserName} кинув виклик!";
                 var data = _callbackData.Serialize(CallbackActionType.StartGame, user.ChatId, user.UserId);
 
-                button = InlineKeyboardButton.WithCallbackData(
-                    text: "Прийняти виклик!",
-                    callbackData: data);
+                button = buttonsBuilder.BuildStartGameKeyboard(data);
             }
             else
             {
