@@ -42,7 +42,7 @@ namespace Bot
 
                 if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
                 {
-                    response = messageBuilder.BuildFarkleResponse(game.CurrentTurn);
+                    response = messageBuilder.BuildFarkleResponse(game);
                     keyboard = InlineKeyboardMarkup.Empty();
                 }
                 else

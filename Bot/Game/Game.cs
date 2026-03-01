@@ -18,6 +18,8 @@ namespace Bot
         [NotMapped]
         public long? CurrentPlayerId { get => CurrentTurn!.PlayerUserId; }
         public Turn? CurrentTurn { get; set; }
+        [NotMapped]
+        public int GameGoalScore = 10000;
         public ICollection<Turn> Turns { get; set; } = new List<Turn>();
         public Game() { }
         public Game(User p1, User p2, DateTime createdDateTime)
@@ -25,6 +27,10 @@ namespace Bot
             Status = GameStatus.InProgress;
             Player1 = p1;
             Player2 = p2;
+            
+            Player1.TotalScore = 0;
+            Player1.TotalScore = 0;
+
             CreatedAt = createdDateTime;
         }
 
@@ -43,5 +49,23 @@ namespace Bot
             Player1.UserId == userId
             ? Player2
             : Player1;
+
+        public void FinishTurn()
+        {
+            CurrentTurn!.SaveCurrentScore();
+            CurrentTurn.Player.TotalScore += CurrentTurn.TotalScore;
+            
+            if(IsPlayerWins())
+                Status = GameStatus.Finished;
+        }
+        private bool IsPlayerWins()
+        {
+            if (CurrentTurn!.Player.TotalScore >= GameGoalScore)
+            {
+                Winner = CurrentTurn!.Player;
+                return true;
+            }
+            return false;
+        }
     }
 }

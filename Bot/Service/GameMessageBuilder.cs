@@ -13,29 +13,47 @@ namespace Bot
                 new(string.Empty,
                 "Ви не можете грати проти себе!");
 
-        public BotResponse BuildFarkleResponse(Turn turn) =>
-            new($"Ви програли! Та втратили {turn.TotalScore}",
-                "Невдача :с");
+        public BotResponse BuildFarkleResponse(Game game) =>
+            new($"💥 FARKLE!\n" +
+                $"@{game.CurrentTurn!.Player.UserName}, ви втратили {game.CurrentTurn.TotalScore} очок цього раунду.\n" +
+                $"🎲 Хід переходить до @{game.GetOpponent().UserName}.",
+                "Невдала комбінація — очки згоріли.");
 
         public BotResponse BuildStartTurnResponse(Game game) =>
-            new($"🎲 @{game.Player2.UserName}(p2) ПРИЙНЯВ ВИКЛИК @{game.Player1.UserName}(p1)!!!\nГра почалась. @{game.Player1.UserName}, оберіть кубики:",
-                $"Ви прийняли виклик{game.Player1.UserName}");
+            new($"⚔ @{game.Player2.UserName} -прийняв виклик- @{game.Player1.UserName}!\n"+
+                $"🎲 Гру розпочато.\n" +
+                $"Перший хід за @{game.CurrentTurn!.Player.UserName}. Оберіть кубики.",
+                $"Ви прийняли виклик{game.CurrentTurn!.Player.UserName}");
 
         public BotResponse BuildSaveAndRollResponse(Turn turn) =>
-            new($"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}",
-                $"Супер! Ви отримали {turn.CurrentScore} очок!");
+            new($"🎲 Хід @{turn.Player.UserName} (очки за гру: {turn.Player.TotalScore})\n" +
+                $"📊 Очки раунду: {turn.TotalScore}\n" +
+                $"Бажаєте кинути ще раз чи зберегти результат?",
+                $"Супер! +{turn.CurrentScore} очок.");
 
         public BotResponse BuildSelectDiceResponse(Turn turn, int diceId) =>
-            new($"🎲 Хід @{turn.Player.UserName}\nРахунок за раунд: {turn.TotalScore}\nРахунок комбінації: {turn.CurrentScore}",
-            $"Ви обрали {turn.DiceValue[diceId]}");
+            new($"🎯 @{turn.Player.UserName} (очки за гру: {turn.Player.TotalScore})\n" +
+                $"📊 Поточний рахунок раунду: {turn.TotalScore}"+
+                $"💰 Очки комбінації: {turn.CurrentScore}\n",
+                $"Ви обрали {turn.DiceValue[diceId]}");
 
         public BotResponse BuildSaveAndEndResponse(Game game) =>
-            new( $"🎲 Хід @{game.CurrentTurn!.Player.UserName} завершив хід.\nВаш поточний рахунок: {game.CurrentTurn!.Player.TotalScore}\nЗа цей раунд ви отримали: {game.CurrentTurn!.TotalScore}"+
-            $"\n🎲Наступний раунд за @{game.GetOpponent().UserName}. Бажаєте продовжити?",
-            $"Хід успішно завершено!");
+            new($"🛑 @{game.CurrentTurn!.Player.UserName} завершив хід.\n" +
+                $"🏆 Загальний рахунок: {game.CurrentTurn.Player.TotalScore}\n"+
+                $"💰 За раунд: {game.CurrentTurn.TotalScore}\n\n"+
+                $"🎲 Наступний хід за @{game.GetOpponent().UserName}. Продовжуємо?",
+                "Хід успішно завершено.");
 
         public BotResponse BuildSurrenderResponse(Game game) =>
-            new($"Переможець: @{game.Winner!.UserName}!",
-            "Ви здалися...");
+            new($"🏆 Переможець: @{game.Winner!.UserName}!\n"+
+                "🏳 Суперник здався.",
+                "Ви здалися. Гру завершено.");
+
+        public BotResponse BuildFinishGameResponse(Game game) =>
+            new($"🏁 Гру завершено!\n" +
+                $"🏆 Переможець: @{game.Winner!.UserName} - {game.Winner.TotalScore} очок\n"+
+                $"🥈 @{game.GetOpponent().UserName} - {game.GetOpponent().TotalScore} очок\n\n" +
+                $"Дякуємо за гру!",
+                $"Перемога @{game.Winner!.UserName}!");
     }
 }

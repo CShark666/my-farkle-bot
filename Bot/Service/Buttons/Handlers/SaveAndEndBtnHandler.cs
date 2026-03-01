@@ -38,14 +38,19 @@ namespace Bot
                 var currentScore = turn!.CurrentScore;
 
                 // Save and end turn
-                turn.TotalScore += turn.CurrentScore;
-                turn.Player.CurrentScore += turn.TotalScore;
+                game.FinishTurn();
+
+                if (game.Status == GameStatus.Finished)
+                {
+                    response = messageBuilder.BuildFinishGameResponse(game);
+                }
+                else
+                {
+                    keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
+                    response = messageBuilder.BuildSaveAndEndResponse(game);
+                }
 
                 await botContext.SaveChangesAsync();
-
-
-                keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
-                response = messageBuilder.BuildSaveAndEndResponse(game);
             }
 
             await bot.SafeEditAndAnswerAsync(

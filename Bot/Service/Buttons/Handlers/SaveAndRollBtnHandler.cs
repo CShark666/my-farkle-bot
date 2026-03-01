@@ -31,7 +31,8 @@ namespace Bot
                 callbackDataSerializer.Deserialize(query.Data!, out var gameId);
                 var game = await botContext.Games
                             .Include(g => g.CurrentTurn)
-                            .Include(g => g.CurrentTurn!.Player)
+                            .Include(g => g.Player1)
+                            .Include(g => g.Player2)
                             .FirstOrDefaultAsync(g => g.Id == gameId);
 
 
@@ -43,8 +44,8 @@ namespace Bot
 
                 if (scoreCalculator.IsFarkle(turn.DiceValue))
                 {
-                    response = messageBuilder.BuildFarkleResponse(game.CurrentTurn!);
-                    keyboard = InlineKeyboardMarkup.Empty();
+                    response = messageBuilder.BuildFarkleResponse(game);
+                    keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
                 }
                 else
                 {

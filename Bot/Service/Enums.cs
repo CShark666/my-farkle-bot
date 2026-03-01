@@ -15,10 +15,4 @@ namespace Bot
         InProgress,
         Finished
     }
-    public enum ButtonType
-    {
-        DiceKeyboard,
-        SaveAndRoll,
-        SaveAndEnd
-    }
 }
