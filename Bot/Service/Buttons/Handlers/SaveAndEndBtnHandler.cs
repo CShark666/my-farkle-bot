@@ -40,8 +40,9 @@ namespace Bot
                 // Save and end turn
                 game.FinishTurn();
 
-                if (game.Status == GameStatus.Finished)
+                if (game.IsPlayerWins())
                 {
+                    game.FinishGame();
                     response = messageBuilder.BuildFinishGameResponse(game);
                 }
                 else

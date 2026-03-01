@@ -29,7 +29,10 @@ namespace Bot
             Player2 = p2;
             
             Player1.TotalScore = 0;
-            Player1.TotalScore = 0;
+            Player1.ActiveGames = true;
+
+            Player2.TotalScore = 0;
+            Player2.ActiveGames = true;
 
             CreatedAt = createdDateTime;
         }
@@ -54,18 +57,16 @@ namespace Bot
         {
             CurrentTurn!.SaveCurrentScore();
             CurrentTurn.Player.TotalScore += CurrentTurn.TotalScore;
-            
-            if(IsPlayerWins())
-                Status = GameStatus.Finished;
         }
-        private bool IsPlayerWins()
+        public void FinishGame()
         {
-            if (CurrentTurn!.Player.TotalScore >= GameGoalScore)
-            {
-                Winner = CurrentTurn!.Player;
-                return true;
-            }
-            return false;
+            Status = GameStatus.Finished;
+            Winner = CurrentTurn!.Player;
+            
+            Player1.ActiveGames = false;
+            Player2.ActiveGames = false;
         }
+        public bool IsPlayerWins() =>
+            CurrentTurn!.Player.TotalScore >= GameGoalScore;
     }
 }

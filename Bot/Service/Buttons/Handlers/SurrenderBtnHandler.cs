@@ -29,7 +29,7 @@ namespace Bot
 
             if (game!.Player1.UserId == query.From.Id || game.Player2.UserId == query.From.Id)
             {
-                game.Status = GameStatus.Finished;
+                game.FinishGame();
                 game.Winner = game.GetOpponentWithId(query.From.Id);
 
                 await botContext.SaveChangesAsync();

@@ -15,11 +15,22 @@ namespace Bot.Service.Commands.Handlers
 
         public async Task HandleCommandAsync(User user)
         {
-            var msg = $"@{user.UserName} кинув виклик!";
-            var data = _callbackData.Serialize(CallbackActionType.StartGame, user.ChatId, user.UserId);
-            var button = InlineKeyboardButton.WithCallbackData(
-                text: "Прийняти виклик!",
-                callbackData: data);
+            var msg = string.Empty;
+            var button = InlineKeyboardMarkup.Empty();
+
+            if (!user.ActiveGames)
+            {
+                msg = $"@{user.UserName} кинув виклик!";
+                var data = _callbackData.Serialize(CallbackActionType.StartGame, user.ChatId, user.UserId);
+
+                button = InlineKeyboardButton.WithCallbackData(
+                    text: "Прийняти виклик!",
+                    callbackData: data);
+            }
+            else
+            {
+                msg = "Дограйте попередню гру.";
+            }
 
             await _bot.SendMessage(
                 chatId: user.ChatId,
