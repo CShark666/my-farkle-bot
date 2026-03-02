@@ -11,7 +11,7 @@ namespace Bot
         UserRepository userRepository,
         GameButtonsBuilder keyboardBuilder,
         ScoreCalculator scoreCalculator,
-        GameMessageBuilder messageBuilder) : IButtonsHandler
+        GameResponseFactory messageBuilder) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartGame;
 

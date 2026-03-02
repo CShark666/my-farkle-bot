@@ -1,9 +1,7 @@
-using Telegram.Bot.Types.ReplyMarkups;
-
 namespace Bot
 {
     public record BotResponse(string Text, string QueryMessage);
-    public class GameMessageBuilder
+    public class GameResponseFactory
     {
         public BotResponse BuildWrongTurnResponse() =>
             new(string.Empty,

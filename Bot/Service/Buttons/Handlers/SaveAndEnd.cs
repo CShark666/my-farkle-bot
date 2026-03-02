@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -11,7 +9,7 @@ namespace Bot
             BotContext botContext,
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameMessageBuilder messageBuilder,
+            GameResponseFactory messageBuilder,
             GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;

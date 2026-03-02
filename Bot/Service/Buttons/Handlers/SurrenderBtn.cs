@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -9,7 +8,7 @@ namespace Bot
             TelegramBotClient bot,
             BotContext botContext,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameMessageBuilder messageBuilder,
+            GameResponseFactory messageBuilder,
             GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.Surrender;

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -10,7 +9,7 @@ namespace Bot
             BotContext botContext,
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameMessageBuilder messageBuilder,
+            GameResponseFactory messageBuilder,
             ScoreCalculator scoreCalculator,
             GameRepository repository) : IButtonsHandler
     {

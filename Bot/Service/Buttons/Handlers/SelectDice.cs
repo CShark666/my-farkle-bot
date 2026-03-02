@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -11,7 +10,7 @@ namespace Bot
         GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator,
-        GameMessageBuilder messageBuilder,
+        GameResponseFactory messageBuilder,
         GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SelectDice;

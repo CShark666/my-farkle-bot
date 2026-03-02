@@ -23,7 +23,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<GameRepository>();
 
         services.AddSingleton<GameButtonsBuilder>();
-        services.AddSingleton<GameMessageBuilder>();
+        services.AddSingleton<GameResponseFactory>();
         services.AddSingleton<GameCallbackDataSerializer>();
         services.AddSingleton<ScoreCalculator>();
 
