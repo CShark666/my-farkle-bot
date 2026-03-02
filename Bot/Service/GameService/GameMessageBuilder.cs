@@ -33,7 +33,7 @@ namespace Bot
 
         public BotResponse BuildSelectDiceResponse(Turn turn, int diceId) =>
             new($"🎯 @{turn.Player.UserName} (очки за гру: {turn.Player.TotalScore})\n" +
-                $"📊 Поточний рахунок раунду: {turn.TotalScore}"+
+                $"📊 Поточний рахунок раунду: {turn.TotalScore}\n"+
                 $"💰 Очки комбінації: {turn.CurrentScore}\n",
                 $"Ви обрали {turn.DiceValue[diceId]}");
 
@@ -55,5 +55,9 @@ namespace Bot
                 $"🥈 @{game.GetOpponent().UserName} - {game.GetOpponent().TotalScore} очок\n\n" +
                 $"Дякуємо за гру!",
                 $"Перемога @{game.Winner!.UserName}!");
+
+        public BotResponse BuildGameIsFinished() =>
+            new($"🏁Ця гра вже завершено!",
+                "🏁Ця гра вже завершено!");
     }
 }

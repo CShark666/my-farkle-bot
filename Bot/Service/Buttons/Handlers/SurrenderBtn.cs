@@ -11,7 +11,8 @@ namespace Bot
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
             GameMessageBuilder messageBuilder,
-            ScoreCalculator scoreCalculator) : IButtonsHandler
+            ScoreCalculator scoreCalculator,
+            GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.Surrender;
 
@@ -21,27 +22,33 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
 
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-            var game = await botContext.Games
-                        .Include(g => g.CurrentTurn)
-                        .Include(g => g.Player1)
-                        .Include(g => g.Player2)
-                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var validUser = await repository.IsGameUserValidAsync(gameId, query.From.Id);
 
-            if (game!.Player1.UserId == query.From.Id || game.Player2.UserId == query.From.Id)
+            if (!validUser)
             {
-                game.FinishGame();
+                response = messageBuilder.BuildWrongTurnResponse();
+            }
+
+            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
+
+            if(gameIsFinished)
+            {
+                response = messageBuilder.BuildGameIsFinished();
+            }
+
+            else
+            {
+                var game = await repository.GetGameAsync(gameId);
+
+                game!.FinishGame();
                 game.Winner = game.GetOpponentWithId(query.From.Id);
 
                 await botContext.SaveChangesAsync();
 
                 response = messageBuilder.BuildSurrenderResponse(game);
             }
-            else
-            {
-                response = messageBuilder.BuildWrongTurnResponse();
-            }
 
-            
+
             await bot.SafeEditAndAnswerAsync(
                 callbackData.ChatId, query.Message!.Id, response.Text,
                 keyboard, query.Id, response.QueryMessage);

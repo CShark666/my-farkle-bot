@@ -11,7 +11,8 @@ namespace Bot
         GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator,
-        GameMessageBuilder messageBuilder) : IButtonsHandler
+        GameMessageBuilder messageBuilder,
+        GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SelectDice;
 
@@ -24,30 +25,30 @@ namespace Bot
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
+
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
+            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
+
+            if (gameIsFinished)
+            {
+                response = messageBuilder.BuildGameIsFinished();
+            }
+
             else
             {
-                // Getting game data
-                callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
+                var game = await repository.GetGameTurnAsync(gameId);
 
-                var game = await botContext.Games
-                            .Include(g => g.CurrentTurn)
-                            .Include(g => g.CurrentTurn!.Player)
-                            .FirstOrDefaultAsync(g => g.Id == gameId);
-
-                // Add selected dice
                 var turn = game!.CurrentTurn;
                 turn!.AddOrRemoveDiceSelection(selectedDiceId);
 
-                // Calculate score selected dice
+
                 var selectedDice = turn.SelectedDice.Select(sd => turn.DiceValue[sd]).ToArray();
                 turn.CurrentScore = scoreCalculator.Calculate(selectedDice);
 
+
                 await botContext.SaveChangesAsync();
 
-                // Creating buttons
                 keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
-
-                // Creating bot response
                 response = messageBuilder.BuildSelectDiceResponse(turn, selectedDiceId);
             }
 

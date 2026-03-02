@@ -1,5 +1,4 @@
 using Bot;
-using Bot.Service.Commands.Handlers;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -21,6 +20,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddScoped(sp => new BotContext(dbPath!));
         services.AddScoped<UserRepository>();
+        services.AddScoped<GameRepository>();
 
         services.AddSingleton<GameButtonsBuilder>();
         services.AddSingleton<GameMessageBuilder>();

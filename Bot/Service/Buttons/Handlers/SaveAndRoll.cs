@@ -11,7 +11,8 @@ namespace Bot
         GameButtonsBuilder keyboardBuilder,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator,
-        GameMessageBuilder messageBuilder) : IButtonsHandler
+        GameMessageBuilder messageBuilder,
+        GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndRoll;
 
@@ -23,23 +24,23 @@ namespace Bot
             if (!callbackData.MatchesId(query.From.Id))
             {
                 response = messageBuilder.BuildWrongTurnResponse();
-
             }
+
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
+            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
+
+            if (gameIsFinished)
+            {
+                response = messageBuilder.BuildGameIsFinished();
+            }
+            
             else
             {
-                // Getting game data
-                callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-                var game = await botContext.Games
-                            .Include(g => g.CurrentTurn)
-                            .Include(g => g.Player1)
-                            .Include(g => g.Player2)
-                            .FirstOrDefaultAsync(g => g.Id == gameId);
-
-
+                var game = await repository.GetGameAsync(gameId);
                 var turn = game!.CurrentTurn;
 
-                // Save score and roll remaining dice 
                 turn!.SaveAndRoll();
+
                 await botContext.SaveChangesAsync();
 
                 if (scoreCalculator.IsFarkle(turn.DiceValue))

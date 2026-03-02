@@ -11,7 +11,8 @@ namespace Bot
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
             GameMessageBuilder messageBuilder,
-            ScoreCalculator scoreCalculator) : IButtonsHandler
+            ScoreCalculator scoreCalculator,
+            GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartTurn;
 
@@ -24,16 +25,21 @@ namespace Bot
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
+
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
+            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
+
+            if(gameIsFinished)
+            {
+                response = messageBuilder.BuildGameIsFinished();
+            }
+
             else
             {
-                callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-                var game = await botContext.Games
-                            .Include(g => g.CurrentTurn)
-                            .Include(g => g.Player1)
-                            .Include(g => g.Player2)
-                            .FirstOrDefaultAsync(g => g.Id == gameId);
+                var game = await repository.GetGameAsync(gameId);
 
                 var player = game!.GetOpponent();
+                
                 game.StartTurn(player);
                 game.CurrentTurn!.RollDice();
 

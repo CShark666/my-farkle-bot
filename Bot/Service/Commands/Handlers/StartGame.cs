@@ -1,7 +1,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Bot.Service.Commands.Handlers
+namespace Bot
 {
     public class StartGameCmdHandler(
         TelegramBotClient bot,
