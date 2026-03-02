@@ -19,16 +19,16 @@ namespace Bot
             var msg = string.Empty;
             var button = InlineKeyboardMarkup.Empty();
 
-            if (!user.ActiveGames)
+            if (user.ActiveGames)
+            {
+                msg = "Дограйте попередню гру.";
+            }
+            else
             {
                 msg = $"@{user.UserName} кинув виклик!";
                 var data = _callbackData.Serialize(CallbackActionType.StartGame, user.ChatId, user.UserId);
 
                 button = buttonsBuilder.BuildStartGameKeyboard(data);
-            }
-            else
-            {
-                msg = "Дограйте попередню гру.";
             }
 
             await _bot.SendMessage(

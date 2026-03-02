@@ -11,7 +11,8 @@ namespace Bot
             BotContext botContext,
             GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameMessageBuilder messageBuilder) : IButtonsHandler
+            GameMessageBuilder messageBuilder,
+            GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;
 
@@ -19,26 +20,21 @@ namespace Bot
         {
             BotResponse response;
             var keyboard = new InlineKeyboardMarkup();
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
             if (!callbackData.MatchesId(query.From.Id))
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
+            else if(await repository.IsGameFinishedAsync(gameId))
+            {
+                response = messageBuilder.BuildGameIsFinished();
+            }
             else
             {
-                // Getting game data
-                callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-                var game = await botContext.Games
-                            .Include(g => g.CurrentTurn)
-                            .Include(g => g.Player1)
-                            .Include(g => g.Player2)
-                            .FirstOrDefaultAsync(g => g.Id == gameId);
+                var game = await repository.GetGameAsync(gameId);
 
-                var turn = game!.CurrentTurn;
-                var currentScore = turn!.CurrentScore;
-
-                // Save and end turn
-                game.FinishTurn();
+                game!.FinishTurn();
 
                 if (game.IsPlayerWins())
                 {

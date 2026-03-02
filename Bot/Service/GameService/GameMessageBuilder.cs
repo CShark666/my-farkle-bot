@@ -59,5 +59,9 @@ namespace Bot
         public BotResponse BuildGameIsFinished() =>
             new($"🏁Ця гра вже завершено!",
                 "🏁Ця гра вже завершено!");
+
+        public BotResponse BuildInvalidUserGamesStatus() =>
+            new(string.Empty,
+                "❌ Хтось з гравців має незавершену гру!");
     }
 }

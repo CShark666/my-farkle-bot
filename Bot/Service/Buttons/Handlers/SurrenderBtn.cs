@@ -8,10 +8,8 @@ namespace Bot
     public class SurrenderBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
-            GameButtonsBuilder keyboardBuilder,
             GameCallbackDataSerializer callbackDataSerializer,
             GameMessageBuilder messageBuilder,
-            ScoreCalculator scoreCalculator,
             GameRepository repository) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.Surrender;
@@ -28,10 +26,7 @@ namespace Bot
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
-
-            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
-
-            if(gameIsFinished)
+            else if(await repository.IsGameFinishedAsync(gameId))
             {
                 response = messageBuilder.BuildGameIsFinished();
             }
@@ -44,6 +39,7 @@ namespace Bot
                 game.Winner = game.GetOpponentWithId(query.From.Id);
 
                 await botContext.SaveChangesAsync();
+
 
                 response = messageBuilder.BuildSurrenderResponse(game);
             }

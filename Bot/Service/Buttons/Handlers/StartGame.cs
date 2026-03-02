@@ -19,39 +19,41 @@ namespace Bot
         {
             BotResponse response;
             var keyboard = InlineKeyboardMarkup.Empty();
+            var player1 = await userRepository.GetOrCreateUserAsync(
+                            new User(
+                                callbackData.ChatId,
+                                callbackData.UserId));
+
+            var player2 = await userRepository.GetOrCreateUserAsync(
+                            new User(
+                                callbackData.ChatId,
+                                query.From.Id,
+                                query.From.Username!,
+                                query.From.FirstName));
 
             if (callbackData.MatchesId(query.From.Id))
             {
                 response = messageBuilder.BuildWrongPlayerResponse();
             }
+            else if(!await userRepository.IsUsersStatusValid(player1, player2))
+            {
+                response = messageBuilder.BuildInvalidUserGamesStatus();
+            }
+
             else
             {
-                // Creating players
-                var player1 = await userRepository.GetOrCreateUserAsync(
-                                            new User(
-                                                callbackData.ChatId,
-                                                callbackData.UserId));
-
-                var player2 = await userRepository.GetOrCreateUserAsync(
-                                            new User(
-                                                callbackData.ChatId,
-                                                query.From.Id,
-                                                query.From.Username!,
-                                                query.From.FirstName));
-
-                // Creating game
                 var game = new Game(player1, player2, dateTimeProvider.UtcNow);
+
                 await botContext.Games.AddAsync(game);
                 await botContext.SaveChangesAsync();
 
-                // Creating turn, roll dice and save it
+
                 game.StartTurn(player1);
                 game.CurrentTurn!.RollDice();
 
                 await botContext.SaveChangesAsync();
 
 
-                // Farkle check
                 if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
                 {
                     response = messageBuilder.BuildFarkleResponse(game);

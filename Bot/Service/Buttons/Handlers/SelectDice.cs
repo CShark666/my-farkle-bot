@@ -20,16 +20,13 @@ namespace Bot
         {
             BotResponse response;
             var keyboard = InlineKeyboardMarkup.Empty();
+            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
 
             if (!callbackData.MatchesId(query.From.Id))
             {
                 response = messageBuilder.BuildWrongTurnResponse();
             }
-
-            callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
-            var gameIsFinished = await repository.IsGameFinishedAsync(gameId);
-
-            if (gameIsFinished)
+            else if (await repository.IsGameFinishedAsync(gameId))
             {
                 response = messageBuilder.BuildGameIsFinished();
             }
