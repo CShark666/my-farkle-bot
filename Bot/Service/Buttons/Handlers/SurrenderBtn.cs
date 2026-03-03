@@ -22,7 +22,7 @@ namespace Bot
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
             var validationResult = await validator.ValidationAsync([
-                new GameUsersIdsValidator(gameId, query.From.Id, botContext, responseFactory),
+                new GamePlayersIdsValidator(gameId, query.From.Id, botContext, responseFactory),
                 new GameStatusValidator(gameId, botContext, responseFactory)
             ]);
 
@@ -38,7 +38,6 @@ namespace Bot
                 game.Winner = game.GetOpponentWithId(query.From.Id);
 
                 await botContext.SaveChangesAsync();
-
 
                 response = responseFactory.BuildSurrenderResponse(game);
             }

@@ -50,9 +50,6 @@ namespace Bot
                     keyboard = keyboardFactory.BuildTurnKeyboard(game.CurrentTurn);
                     response = responseFactory.BuildStartTurnResponse(game);
                 }
-
-                response = responseFactory.BuildSaveAndRollResponse(game.CurrentTurn);
-                keyboard = keyboardFactory.BuildTurnKeyboard(game.CurrentTurn);
             }
             await bot.SafeEditAndAnswerAsync(
                 callbackData.ChatId, query.Message!.Id, response.Text,
