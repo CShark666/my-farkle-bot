@@ -6,7 +6,7 @@ namespace Bot
     public class StartGameCmdHandler(
         TelegramBotClient bot,
         CallbackData callbackData,
-        GameButtonsBuilder buttonsBuilder) : ICommandHandler
+        GameButtonsFactory buttonsBuilder) : ICommandHandler
     {
         public string Key => "/startgame";
 

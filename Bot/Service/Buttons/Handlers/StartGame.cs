@@ -9,9 +9,9 @@ namespace Bot
         IDateTimeProvider dateTimeProvider,
         BotContext botContext,
         UserRepository userRepository,
-        GameButtonsBuilder keyboardBuilder,
+        GameButtonsFactory keyboardFactory,
         ScoreCalculator scoreCalculator,
-        GameResponseFactory messageBuilder) : IButtonsHandler
+        GameResponseFactory responseFactory) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartGame;
 
@@ -33,11 +33,11 @@ namespace Bot
 
             if (callbackData.MatchesId(query.From.Id))
             {
-                response = messageBuilder.BuildWrongPlayerResponse();
+                response = responseFactory.BuildWrongPlayerResponse();
             }
             else if(!await userRepository.IsUsersStatusValid(player1, player2))
             {
-                response = messageBuilder.BuildInvalidUserGamesStatus();
+                response = responseFactory.BuildInvalidUserGamesStatus();
             }
 
             else
@@ -56,13 +56,13 @@ namespace Bot
 
                 if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
                 {
-                    response = messageBuilder.BuildFarkleResponse(game);
+                    response = responseFactory.BuildFarkleResponse(game);
                     keyboard = InlineKeyboardMarkup.Empty();
                 }
                 else
                 {
-                    keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
-                    response = messageBuilder.BuildStartTurnResponse(game);
+                    keyboard = keyboardFactory.BuildTurnKeyboard(game.CurrentTurn);
+                    response = responseFactory.BuildStartTurnResponse(game);
                 }
             }
 

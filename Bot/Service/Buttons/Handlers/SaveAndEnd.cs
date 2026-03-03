@@ -7,10 +7,11 @@ namespace Bot
     public class SaveAndEndBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
-            GameButtonsBuilder keyboardBuilder,
+            GameButtonsFactory keyboardFactory,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameResponseFactory messageBuilder,
-            GameRepository repository) : IButtonsHandler
+            GameResponseFactory responseFactory,
+            GameRepository repository,
+            ValidatorService validator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndEnd;
 
@@ -20,13 +21,13 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
-            if (!callbackData.MatchesId(query.From.Id))
+            var validationResult = await validator.ValidationAsync([
+                new UserIdValidator(callbackData.UserId, query.From.Id, responseFactory),
+                new GameStatusValidator(gameId, botContext, responseFactory)
+            ]);
+            if (!validationResult.IsValid)
             {
-                response = messageBuilder.BuildWrongTurnResponse();
-            }
-            else if(await repository.IsGameFinishedAsync(gameId))
-            {
-                response = messageBuilder.BuildGameIsFinished();
+                response = validationResult.Response!;
             }
             else
             {
@@ -37,12 +38,12 @@ namespace Bot
                 if (game.IsPlayerWins())
                 {
                     game.FinishGame();
-                    response = messageBuilder.BuildFinishGameResponse(game);
+                    response = responseFactory.BuildFinishGameResponse(game);
                 }
                 else
                 {
-                    keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
-                    response = messageBuilder.BuildSaveAndEndResponse(game);
+                    keyboard = keyboardFactory.BuildEndTurnKeyboard(game);
+                    response = responseFactory.BuildSaveAndEndResponse(game);
                 }
 
                 await botContext.SaveChangesAsync();

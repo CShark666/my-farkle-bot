@@ -8,8 +8,9 @@ namespace Bot
             TelegramBotClient bot,
             BotContext botContext,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameResponseFactory messageBuilder,
-            GameRepository repository) : IButtonsHandler
+            GameResponseFactory responseFactory,
+            GameRepository repository,
+            ValidatorService validator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.Surrender;
 
@@ -19,17 +20,16 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
 
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-            var validUser = await repository.IsGameUserValidAsync(gameId, query.From.Id);
 
-            if (!validUser)
-            {
-                response = messageBuilder.BuildWrongTurnResponse();
-            }
-            else if(await repository.IsGameFinishedAsync(gameId))
-            {
-                response = messageBuilder.BuildGameIsFinished();
-            }
+            var validationResult = await validator.ValidationAsync([
+                new GameUsersIdsValidator(gameId, query.From.Id, botContext, responseFactory),
+                new GameStatusValidator(gameId, botContext, responseFactory)
+            ]);
 
+            if(!validationResult.IsValid)
+            {
+                response = validationResult.Response!;
+            }
             else
             {
                 var game = await repository.GetGameAsync(gameId);
@@ -40,7 +40,7 @@ namespace Bot
                 await botContext.SaveChangesAsync();
 
 
-                response = messageBuilder.BuildSurrenderResponse(game);
+                response = responseFactory.BuildSurrenderResponse(game);
             }
 
 

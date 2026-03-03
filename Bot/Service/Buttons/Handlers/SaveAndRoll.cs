@@ -7,11 +7,12 @@ namespace Bot
     public class SaveAndRollBtnHandler(
         TelegramBotClient bot,
         BotContext botContext,
-        GameButtonsBuilder keyboardBuilder,
+        GameButtonsFactory keyboardFactory,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator,
-        GameResponseFactory messageBuilder,
-        GameRepository repository) : IButtonsHandler
+        GameResponseFactory responseFactory,
+        GameRepository repository,
+        ValidatorService validator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.SaveAndRoll;
 
@@ -21,15 +22,15 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
-            if (!callbackData.MatchesId(query.From.Id))
+            var validationResult = await validator.ValidationAsync([
+                new UserIdValidator(callbackData.UserId, query.From.Id,responseFactory),
+                new GameStatusValidator(gameId, botContext, responseFactory)
+            ]);
+            
+            if (!validationResult.IsValid)
             {
-                response = messageBuilder.BuildWrongTurnResponse();
+                response = validationResult.Response!;
             }
-            else if (await repository.IsGameFinishedAsync(gameId))
-            {
-                response = messageBuilder.BuildGameIsFinished();
-            }
-
             else
             {
                 var game = await repository.GetGameAsync(gameId);
@@ -41,13 +42,13 @@ namespace Bot
 
                 if (scoreCalculator.IsFarkle(turn.DiceValue))
                 {
-                    response = messageBuilder.BuildFarkleResponse(game);
-                    keyboard = keyboardBuilder.BuildEndTurnKeyboard(game);
+                    response = responseFactory.BuildFarkleResponse(game);
+                    keyboard = keyboardFactory.BuildEndTurnKeyboard(game);
                 }
                 else
                 {
-                    keyboard = keyboardBuilder.BuildTurnKeyboard(turn);
-                    response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn!);
+                    keyboard = keyboardFactory.BuildTurnKeyboard(turn);
+                    response = responseFactory.BuildSaveAndRollResponse(game.CurrentTurn!);
                 }
             }
 

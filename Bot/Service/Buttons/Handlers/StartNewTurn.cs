@@ -7,11 +7,12 @@ namespace Bot
     public class StartNewTurnBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
-            GameButtonsBuilder keyboardBuilder,
+            GameButtonsFactory keyboardFactory,
             GameCallbackDataSerializer callbackDataSerializer,
-            GameResponseFactory messageBuilder,
+            GameResponseFactory responseFactory,
             ScoreCalculator scoreCalculator,
-            GameRepository repository) : IButtonsHandler
+            GameRepository repository,
+            ValidatorService validator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartTurn;
 
@@ -21,19 +22,17 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
-            if (callbackData.MatchesId(query.From.Id))
+            var validationResult = await validator.ValidationAsync([
+                new GameStatusValidator(gameId, botContext, responseFactory)
+            ]);
+            
+            if (!validationResult.IsValid)
             {
-                response = messageBuilder.BuildWrongTurnResponse();
+                response = validationResult.Response!;
             }
-            else if (await repository.IsGameFinishedAsync(gameId))
-            {
-                response = messageBuilder.BuildGameIsFinished();
-            }
-
             else
             {
                 var game = await repository.GetGameAsync(gameId);
-
                 var player = game!.GetOpponent();
 
                 game.StartTurn(player);
@@ -41,20 +40,19 @@ namespace Bot
 
                 await botContext.SaveChangesAsync();
 
-
                 if (scoreCalculator.IsFarkle(game.CurrentTurn!.DiceValue))
                 {
-                    response = messageBuilder.BuildFarkleResponse(game);
+                    response = responseFactory.BuildFarkleResponse(game);
                     keyboard = InlineKeyboardMarkup.Empty();
                 }
                 else
                 {
-                    keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
-                    response = messageBuilder.BuildStartTurnResponse(game);
+                    keyboard = keyboardFactory.BuildTurnKeyboard(game.CurrentTurn);
+                    response = responseFactory.BuildStartTurnResponse(game);
                 }
 
-                response = messageBuilder.BuildSaveAndRollResponse(game.CurrentTurn);
-                keyboard = keyboardBuilder.BuildTurnKeyboard(game.CurrentTurn);
+                response = responseFactory.BuildSaveAndRollResponse(game.CurrentTurn);
+                keyboard = keyboardFactory.BuildTurnKeyboard(game.CurrentTurn);
             }
             await bot.SafeEditAndAnswerAsync(
                 callbackData.ChatId, query.Message!.Id, response.Text,

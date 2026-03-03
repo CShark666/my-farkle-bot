@@ -2,7 +2,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
-    public class GameButtonsBuilder(GameCallbackDataSerializer gameCallbackDataSerializer)
+    public class GameButtonsFactory(GameCallbackDataSerializer gameCallbackDataSerializer)
     {
         private const int ButtonsPerRow = 3;
         private const string SelectedDiceEmoji = "✅";
