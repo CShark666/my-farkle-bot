@@ -17,5 +17,11 @@ namespace Bot
                 .Include(g => g.Player2)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
 
+        public async Task<List<Game>> GetUnfinishedGamesAsync(DateTime time) =>
+            await db.Games
+                .Include(g => g.Player1)
+                .Include(g => g.Player2)
+                .Where(g => g.CurrentTurn!.CreatedAt <= time && g.Status != GameStatus.Finished)
+                .ToListAsync();
     }
 }

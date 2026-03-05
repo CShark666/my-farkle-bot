@@ -27,7 +27,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<GameCallbackDataSerializer>();
         services.AddSingleton<ScoreCalculator>();
         services.AddSingleton<ValidatorService>();
-
+        
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();
@@ -43,6 +43,7 @@ var host = Host.CreateDefaultBuilder(args)
 
 
         services.AddHostedService<BotService>();
+        services.AddHostedService<GameCleanupService>();
     })
     .Build();
 

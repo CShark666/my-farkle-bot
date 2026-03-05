@@ -66,6 +66,12 @@ namespace Bot
             Player1.ActiveGames = false;
             Player2.ActiveGames = false;
         }
+        public void TechnicalDefeat()
+        {
+            Status = GameStatus.Finished;
+            Player1.ActiveGames = false;
+            Player2.ActiveGames = false;
+        }
         public bool IsPlayerWins() =>
             CurrentTurn!.Player.TotalScore >= GameGoalScore;
     }

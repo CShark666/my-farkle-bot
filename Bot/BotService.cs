@@ -25,7 +25,7 @@ namespace Bot
             _bot.OnError += OnError;
             _bot.OnMessage += OnMessage;
             _bot.OnUpdate += OnUpdate;
-
+         
             try
             {
                 await Task.Delay(Timeout.Infinite, stoppingToken);

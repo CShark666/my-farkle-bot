@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Bot
 {
     public class Turn
@@ -27,6 +25,8 @@ namespace Bot
             PlayerChatId = player.ChatId;
             PlayerUserId = player.UserId;
             TurnNumber = 1;
+
+            CreatedAt = DateTime.UtcNow;
         }
         public void RollDice()
         {
