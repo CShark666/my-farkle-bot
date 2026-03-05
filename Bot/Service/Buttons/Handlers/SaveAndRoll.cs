@@ -24,7 +24,8 @@ namespace Bot
 
             var validationResult = await validator.ValidationAsync([
                 new UserIdValidator(callbackData.UserId, query.From.Id,responseFactory),
-                new GameStatusValidator(gameId, botContext, responseFactory)
+                new GameStatusValidator(gameId, botContext, responseFactory),
+                new GameSelectedDiceValidation(gameId, botContext, responseFactory)
             ]);
             
             if (!validationResult.IsValid)

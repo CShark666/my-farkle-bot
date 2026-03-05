@@ -61,5 +61,9 @@ namespace Bot
         public BotResponse BuildInvalidUserGamesStatus() =>
             new(string.Empty,
                 "❌ Хтось з гравців має незавершену гру!");
+
+        public BotResponse BuildSelectedDiceIsNull() =>
+            new(string.Empty,
+                "🎲 Ви маєте обрати кубик 🎲");
     }
 }
