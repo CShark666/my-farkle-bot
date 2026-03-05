@@ -10,7 +10,8 @@ namespace Bot
         UserRepository userRepository,
         GameButtonsFactory keyboardFactory,
         ScoreCalculator scoreCalculator,
-        GameResponseFactory responseFactory) : IButtonsHandler
+        GameResponseFactory responseFactory,
+        ValidatorService validator) : IButtonsHandler
     {
         public CallbackActionType Key => CallbackActionType.StartGame;
 
@@ -30,15 +31,12 @@ namespace Bot
                                 query.From.Username!,
                                 query.From.FirstName));
 
-            if (callbackData.MatchesId(query.From.Id))
-            {
-                response = responseFactory.BuildWrongPlayerResponse();
-            }
-            else if(!await userRepository.IsUsersStatusValid(player1, player2))
-            {
-                response = responseFactory.BuildInvalidUserGamesStatus();
-            }
+            var validationResult = await validator.ValidateOpponentsAsync(player1, player2);
 
+            if (!validationResult.IsValid)
+            {
+                response = validationResult.Response!;
+            }
             else
             {
                 var game = new Game(player1, player2);

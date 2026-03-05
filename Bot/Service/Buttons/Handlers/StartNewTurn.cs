@@ -22,9 +22,7 @@ namespace Bot
             var keyboard = new InlineKeyboardMarkup();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
-            var validationResult = await validator.ValidationAsync([
-                new GameStatusValidator(gameId, botContext, responseFactory)
-            ]);
+            var validationResult = await validator.ValidateGameStatus(gameId);
             
             if (!validationResult.IsValid)
             {

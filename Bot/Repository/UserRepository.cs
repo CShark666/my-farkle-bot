@@ -24,14 +24,5 @@ namespace Bot
                 return existingUser;
             }
         }
-
-        public async Task<bool> IsUsersStatusValid(User player1, User player2)
-        {
-            return await db.Users
-                .Where(u =>
-                    (u.ChatId == player1.ChatId && u.UserId == player1.UserId) ||
-                    (u.ChatId == player2.ChatId && u.UserId == player2.UserId))
-                .CountAsync(u => u.ActiveGames == false) == 2;
-        }
     }
 }

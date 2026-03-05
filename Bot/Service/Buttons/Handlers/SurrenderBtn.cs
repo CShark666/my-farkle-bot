@@ -21,10 +21,7 @@ namespace Bot
 
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
 
-            var validationResult = await validator.ValidationAsync([
-                new GamePlayersIdsValidator(gameId, query.From.Id, botContext, responseFactory),
-                new GameStatusValidator(gameId, botContext, responseFactory)
-            ]);
+            var validationResult = await validator.ValidateUsersAndGameAsync(gameId, query.From.Id);
 
             if(!validationResult.IsValid)
             {
