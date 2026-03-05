@@ -15,8 +15,6 @@ var host = Host.CreateDefaultBuilder(args)
             builder.AddConsole();
         });
 
-        services.AddSingleton<IDateTimeProvider>(sp => new DateTimeProvider());
-        
 
         services.AddScoped(sp => new BotContext(dbPath!));
         services.AddScoped<UserRepository>();

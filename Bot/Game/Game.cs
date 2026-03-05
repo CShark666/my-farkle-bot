@@ -22,7 +22,7 @@ namespace Bot
         public int GameGoalScore = 10000;
         public ICollection<Turn> Turns { get; set; } = new List<Turn>();
         public Game() { }
-        public Game(User p1, User p2, DateTime createdDateTime)
+        public Game(User p1, User p2)
         {
             Status = GameStatus.InProgress;
             Player1 = p1;
@@ -34,7 +34,7 @@ namespace Bot
             Player2.TotalScore = 0;
             Player2.ActiveGames = true;
 
-            CreatedAt = createdDateTime;
+            CreatedAt = DateTime.UtcNow;
         }
 
         public User GetOpponent()

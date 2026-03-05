@@ -9,18 +9,16 @@ namespace Bot
     public class BotService(
         TelegramBotClient bot,
         ILogger<BotService> logger,
-        IServiceProvider serviceProvider,
-        IDateTimeProvider dateTimeProvider) : BackgroundService
+        IServiceProvider serviceProvider) : BackgroundService
     {
         private TelegramBotClient _bot = bot;
         private ILogger _logger = logger;
         private IServiceProvider _serviceProvider = serviceProvider;
-        private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("It's Alive!!! It's Alive!!! It's Alive!!!"); // Press Ctrl+C to kill it
-            _logger.LogInformation("Today is {Date}", _dateTimeProvider);
+            _logger.LogInformation("Today is {Date}", DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"));
 
             _bot.OnError += OnError;
             _bot.OnMessage += OnMessage;

@@ -6,7 +6,6 @@ namespace Bot
 {
     public class StartGameBtnHandler(
         TelegramBotClient bot,
-        IDateTimeProvider dateTimeProvider,
         BotContext botContext,
         UserRepository userRepository,
         GameButtonsFactory keyboardFactory,
@@ -42,7 +41,7 @@ namespace Bot
 
             else
             {
-                var game = new Game(player1, player2, dateTimeProvider.UtcNow);
+                var game = new Game(player1, player2);
 
                 await botContext.Games.AddAsync(game);
                 await botContext.SaveChangesAsync();
