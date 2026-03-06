@@ -1,4 +1,5 @@
 using Bot;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -15,8 +16,7 @@ var host = Host.CreateDefaultBuilder(args)
             builder.AddConsole();
         });
 
-
-        services.AddScoped(sp => new BotContext(dbPath!));
+        services.AddDbContext<BotContext>(options => options.UseSqlite(dbPath));
         services.AddScoped<UserRepository>();
         services.AddScoped<GameRepository>();
 
@@ -24,8 +24,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<GameResponseFactory>();
         services.AddSingleton<GameCallbackDataSerializer>();
         services.AddSingleton<ScoreCalculator>();
-        services.AddSingleton<ValidatorService>();
         
+        services.AddScoped<ValidatorService>();
         services.AddScoped<CallbackData>();
         services.AddScoped<CommandsHandler>();
         services.AddScoped<ButtonHandler>();

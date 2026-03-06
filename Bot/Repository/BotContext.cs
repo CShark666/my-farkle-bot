@@ -1,32 +1,33 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Bot
 {
-    public class BotContext : DbContext
+    public class BotContext(DbContextOptions<BotContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Turn> Turns { get; set; }
 
-        public string DbPath { get; }
-        public BotContext(string dbPath)
-        {
-            DbPath = dbPath;
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite($"Data Source={DbPath}");
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var intArrayComparer = new ValueComparer<int[]>(
+                (a, b) => a.SequenceEqual(b),
+                a => a.Aggregate(0, HashCode.Combine),
+                a => a.ToArray()
+            );
+
             // User
             modelBuilder.Entity<User>()
                 .HasKey(u => new { u.ChatId, u.UserId });
+
             // Game
             modelBuilder.Entity<Game>()
                 .HasOne(g => g.Player1)
                 .WithMany(u => u.GamesAsPlayer1)
                 .HasForeignKey(g => new { g.Player1ChatId, g.Player1UserId })
                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Game>()
                 .HasOne(g => g.Player2)
                 .WithMany(u => u.GamesAsPlayer2)
@@ -38,11 +39,13 @@ namespace Bot
                 .WithOne()
                 .HasForeignKey<Game>(g => g.CurrentTurnId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             // Turn -> Game
             modelBuilder.Entity<Turn>()
                 .HasOne(t => t.Game)
                 .WithMany(g => g.Turns)
                 .HasForeignKey(t => t.GameId);
+
             // Turn -> User
             modelBuilder.Entity<Turn>()
                 .HasOne(t => t.Player)
@@ -55,14 +58,15 @@ namespace Bot
                 .Property(t => t.DiceValue)
                     .HasConversion(
                         dv => string.Join(',', dv),
-                        dv => dv.Split(',').Select(int.Parse).ToArray()
-                    );
+                        dv => string.IsNullOrEmpty(dv) ? Array.Empty<int>() : dv.Split(',').Select(int.Parse).ToArray())
+                    .Metadata.SetValueComparer(intArrayComparer);
+
             modelBuilder.Entity<Turn>()
                 .Property(t => t.SelectedDice)
                     .HasConversion(
                         sd => string.Join(',', sd),
-                        sd => sd == "" ? new int[0] : sd.Split(',').Select(int.Parse).ToArray()
-                    );
+                        sd => string.IsNullOrEmpty(sd) ? Array.Empty<int>() : sd.Split(',').Select(int.Parse).ToArray())
+                    .Metadata.SetValueComparer(intArrayComparer);
         }
     }
 }
