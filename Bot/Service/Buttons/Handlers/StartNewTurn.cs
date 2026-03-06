@@ -8,7 +8,6 @@ namespace Bot
             BotContext botContext,
             GameCallbackDataSerializer callbackDataSerializer,
             GameResponseFactory responseFactory,
-            ScoreCalculator scoreCalculator,
             GameRepository repository,
             ValidatorService validator) : IButtonsHandler
     {

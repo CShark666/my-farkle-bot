@@ -7,7 +7,6 @@ namespace Bot
         TelegramBotClient bot,
         BotContext botContext,
         UserRepository userRepository,
-        ScoreCalculator scoreCalculator,
         GameResponseFactory responseFactory,
         ValidatorService validator) : IButtonsHandler
     {
