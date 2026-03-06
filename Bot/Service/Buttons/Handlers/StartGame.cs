@@ -14,7 +14,7 @@ namespace Bot
 
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
-            BotResponse response;
+            BotResponse? response;
             
             var player1 = await userRepository.GetOrCreateUserAsync(
                             new User(
@@ -49,18 +49,14 @@ namespace Bot
 
 
                 validationResult = validator.ValidateFarkle(game.CurrentTurn.DiceValue, game);
-                if (!validationResult.IsValid)
-                {
-                    response = validationResult.Response!;
-                }
-                else
-                {
-                    response = responseFactory.BuildStartTurnResponse(game);
-                }
+
+                response = !validationResult.IsValid 
+                ? validationResult.Response 
+                : responseFactory.BuildStartTurnResponse(game);
             }
 
             await bot.SafeEditAndAnswerAsync(
-                    callbackData.ChatId, query.Message!.Id, query.Id, response);
+                    callbackData.ChatId, query.Message!.Id, query.Id, response!);
         }
     }
 }
