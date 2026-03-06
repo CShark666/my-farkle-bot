@@ -4,7 +4,7 @@ namespace Bot
 {
     public record ValidationResult(bool IsValid, BotResponse? Response = null);
 
-    public class ValidatorService(BotContext db, GameResponseFactory factory)
+    public class ValidatorService(BotContext db, GameResponseFactory factory, ScoreCalculator calculator)
     {
         public async Task<ValidationResult> ValidateUserAndGame(long validUserId, long userId, int gameId)
         {
@@ -27,12 +27,14 @@ namespace Bot
         {
             if (IsUserIdValid(player1.UserId, player2.UserId)) return new(false, factory.BuildWrongPlayerResponse());
             if (!await IsUsersStatusValid(player1, player2)) return new(false, factory.BuildInvalidUserGamesStatus());
+
             return new(true);
         }
 
         public async Task<ValidationResult> ValidateGameStatus(int gameId)
         {
             if (await IsGameFinishedAsync(gameId)) return new(false, factory.BuildGameIsFinished());
+
             return new(true);
         }
 
@@ -40,6 +42,13 @@ namespace Bot
         {
             if (!await IsGamePlayersIdValidAsync(gameId, userId)) return new(false, factory.BuildGameIsFinished());
             if (await IsGameFinishedAsync(gameId)) return new(false, factory.BuildGameIsFinished());
+
+            return new(true);
+        }
+        public ValidationResult ValidateFarkle(int[] diceValue, Game game)
+        {
+            if(IsFarkle(diceValue)) return new(false, factory.BuildFarkleResponse(game));
+            
             return new(true);
         }
         private bool IsUserIdValid(long validUserId, long userId) =>
@@ -67,5 +76,7 @@ namespace Bot
                     (u.ChatId == player2.ChatId && u.UserId == player2.UserId))
                 .CountAsync(u => u.ActiveGames == false) == 2;
         }
+        private bool IsFarkle(int[] dice) =>
+            calculator.CalculateRaw(dice) == 0;
     }
 }

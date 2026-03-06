@@ -33,9 +33,10 @@ namespace Bot
 
                 await botContext.SaveChangesAsync();
 
-                if (scoreCalculator.IsFarkle(turn.DiceValue))
+                validationResult = validator.ValidateFarkle(turn.DiceValue, game);
+                if (!validationResult.IsValid)
                 {
-                    response = responseFactory.BuildFarkleResponse(game);
+                    response = validationResult.Response!;
                 }
                 else
                 {

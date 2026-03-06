@@ -29,7 +29,5 @@ namespace Bot
         }
         public int CalculateRaw(int[] dice) =>
             _rules.Sum(rule => rule.Check(dice, out int[] usedDice));
-        public bool IsFarkle(int[] dice) =>
-            CalculateRaw(dice) == 0;
     }
 }
