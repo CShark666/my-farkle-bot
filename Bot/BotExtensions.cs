@@ -9,16 +9,15 @@ namespace Bot
         extension(TelegramBotClient bot)
         {
             public async Task SafeEditAndAnswerAsync(
-                long chatId, int messageId, string text,
-                InlineKeyboardMarkup keyboard,
-                string callbackQueryId, string queryMsg)
+                long chatId, int messageId,string callbackQueryId,
+                BotResponse response)
             {
                 try
                 {
-                    if (text != string.Empty)
-                        await bot.EditMessageText(chatId, messageId, text, replyMarkup: keyboard);
+                    if (response.Text != string.Empty)
+                        await bot.EditMessageText(chatId, messageId, response.Text!, replyMarkup: response.Keyboard);
 
-                    await bot.AnswerCallbackQuery(callbackQueryId, queryMsg);
+                    await bot.AnswerCallbackQuery(callbackQueryId, response.QueryMessage);
                 }
                 catch (ApiRequestException ex)
                     when (ex.Message.Contains("message is not modified"))

@@ -1,13 +1,11 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
     public class SaveAndEndBtnHandler(
             TelegramBotClient bot,
             BotContext botContext,
-            GameButtonsFactory keyboardFactory,
             GameCallbackDataSerializer callbackDataSerializer,
             GameResponseFactory responseFactory,
             GameRepository repository,
@@ -18,11 +16,9 @@ namespace Bot
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             BotResponse response;
-            var keyboard = new InlineKeyboardMarkup();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-
             var validationResult = await validator.ValidateUserAndGame(callbackData.UserId, query.From.Id, gameId);
-            
+
             if (!validationResult.IsValid)
             {
                 response = validationResult.Response!;
@@ -40,7 +36,6 @@ namespace Bot
                 }
                 else
                 {
-                    keyboard = keyboardFactory.BuildEndTurnKeyboard(game);
                     response = responseFactory.BuildSaveAndEndResponse(game);
                 }
 
@@ -48,8 +43,7 @@ namespace Bot
             }
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, response.Text,
-                keyboard, query.Id, response.QueryMessage);
+                callbackData.ChatId, query.Message!.Id, query.Id, response);
         }
     }
 }

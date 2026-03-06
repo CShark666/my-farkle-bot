@@ -1,6 +1,5 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
@@ -17,13 +16,10 @@ namespace Bot
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             BotResponse response;
-            var keyboard = new InlineKeyboardMarkup();
-
             callbackDataSerializer.Deserialize(query.Data!, out var gameId);
-
             var validationResult = await validator.ValidateUsersAndGameAsync(gameId, query.From.Id);
 
-            if(!validationResult.IsValid)
+            if (!validationResult.IsValid)
             {
                 response = validationResult.Response!;
             }
@@ -41,8 +37,7 @@ namespace Bot
 
 
             await bot.SafeEditAndAnswerAsync(
-                callbackData.ChatId, query.Message!.Id, response.Text,
-                keyboard, query.Id, response.QueryMessage);
+                callbackData.ChatId, query.Message!.Id, query.Id, response);
         }
     }
 }

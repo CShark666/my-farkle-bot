@@ -1,7 +1,9 @@
+using Telegram.Bot.Types.ReplyMarkups;
+
 namespace Bot
 {
-    public record BotResponse(string Text, string QueryMessage);
-    public class GameResponseFactory
+    public record BotResponse(string? Text = null, string? QueryMessage = null, InlineKeyboardMarkup? Keyboard = null);
+    public class GameResponseFactory(GameButtonsFactory keyboardFactory)
     {
         public BotResponse BuildWrongTurnResponse() =>
             new(string.Empty,
@@ -15,32 +17,37 @@ namespace Bot
             new($"💥 FARKLE!\n" +
                 $"@{game.CurrentTurn!.Player.UserName}, ви втратили {game.CurrentTurn.TotalScore} очок цього раунду.\n" +
                 $"🎲 Хід переходить до @{game.GetOpponent().UserName}.",
-                "Невдала комбінація — очки згоріли.");
+                "Невдала комбінація — очки згоріли.",
+                keyboardFactory.BuildEndTurnKeyboard(game));
 
         public BotResponse BuildStartTurnResponse(Game game) =>
             new($"⚔ @{game.Player2.UserName} -прийняв виклик- @{game.Player1.UserName}!\n"+
                 $"🎲 Гру розпочато.\n" +
                 $"Перший хід за @{game.CurrentTurn!.Player.UserName}. Оберіть кубики.",
-                $"Ви прийняли виклик{game.CurrentTurn!.Player.UserName}");
+                $"Ви прийняли виклик{game.CurrentTurn!.Player.UserName}",
+                keyboardFactory.BuildTurnKeyboard(game.CurrentTurn));
 
         public BotResponse BuildSaveAndRollResponse(Turn turn) =>
             new($"🎲 Хід @{turn.Player.UserName} (очки за гру: {turn.Player.TotalScore})\n" +
                 $"📊 Очки раунду: {turn.TotalScore}\n" +
                 $"Бажаєте кинути ще раз чи зберегти результат?",
-                $"Супер! +{turn.CurrentScore} очок.");
+                $"Супер! +{turn.CurrentScore} очок.",
+                keyboardFactory.BuildTurnKeyboard(turn));
 
         public BotResponse BuildSelectDiceResponse(Turn turn, int diceId) =>
             new($"🎯 @{turn.Player.UserName} (очки за гру: {turn.Player.TotalScore})\n" +
                 $"📊 Поточний рахунок раунду: {turn.TotalScore}\n"+
                 $"💰 Очки комбінації: {turn.CurrentScore}\n",
-                $"Ви обрали {turn.DiceValue[diceId]}");
+                $"Ви обрали {turn.DiceValue[diceId]}",
+                keyboardFactory.BuildTurnKeyboard(turn));
 
         public BotResponse BuildSaveAndEndResponse(Game game) =>
             new($"🛑 @{game.CurrentTurn!.Player.UserName} завершив хід.\n" +
                 $"🏆 Загальний рахунок: {game.CurrentTurn.Player.TotalScore}\n"+
                 $"💰 За раунд: {game.CurrentTurn.TotalScore}\n\n"+
                 $"🎲 Наступний хід за @{game.GetOpponent().UserName}. Продовжуємо?",
-                "Хід успішно завершено.");
+                "Хід успішно завершено.",
+                keyboardFactory.BuildEndTurnKeyboard(game));
 
         public BotResponse BuildSurrenderResponse(Game game) =>
             new($"🏆 Переможець: @{game.Winner!.UserName}!\n"+

@@ -1,13 +1,11 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot
 {
     public class SelectDiceBtnHandler(
         TelegramBotClient bot,
         BotContext botContext,
-        GameButtonsFactory keyboardFactory,
         GameCallbackDataSerializer callbackDataSerializer,
         ScoreCalculator scoreCalculator,
         GameResponseFactory responseFactory,
@@ -19,11 +17,9 @@ namespace Bot
         public async Task HandleButton(CallbackData callbackData, CallbackQuery query)
         {
             BotResponse response;
-            var keyboard = InlineKeyboardMarkup.Empty();
             callbackDataSerializer.Deserialize(query.Data!, out var gameId, out var selectedDiceId);
-
             var validationResult = await validator.ValidateUserAndGame(callbackData.UserId, query.From.Id, gameId);
-            
+
             if (!validationResult.IsValid)
             {
                 response = validationResult.Response!;
@@ -40,13 +36,11 @@ namespace Bot
 
                 await botContext.SaveChangesAsync();
 
-                keyboard = keyboardFactory.BuildTurnKeyboard(turn);
                 response = responseFactory.BuildSelectDiceResponse(turn, selectedDiceId);
             }
 
             await bot.SafeEditAndAnswerAsync(
-                    callbackData.ChatId, query.Message!.Id, response.Text,
-                    keyboard, query.Id, response.QueryMessage);
+                    callbackData.ChatId, query.Message!.Id, query.Id, response);
         }
     }
 }
