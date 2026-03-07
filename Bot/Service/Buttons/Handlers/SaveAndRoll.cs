@@ -32,10 +32,10 @@ namespace Bot
 
                 await botContext.SaveChangesAsync();
 
-                validationResult = validator.ValidateFarkle(turn.DiceValue, game);
+                var farkleValidation = validator.ValidateFarkle(turn.DiceValue, game);
                 
-                response = !validationResult.IsValid 
-                ? validationResult.Response 
+                response = !farkleValidation.IsValid 
+                ? farkleValidation.Response 
                 : responseFactory.BuildSaveAndRollResponse(game.CurrentTurn!);
             }
 

@@ -13,7 +13,6 @@ namespace Bot
 
             return new(true);
         }
-
         public async Task<ValidationResult> ValidateDiceSelectionAsync(long validUserId, long userId, int gameId)
         {
             if (!IsUserIdValid(validUserId, userId)) return new(false, factory.BuildWrongTurnResponse());
@@ -22,7 +21,6 @@ namespace Bot
 
             return new(true);
         }
-
         public async Task<ValidationResult> ValidateOpponentsAsync(User player1, User player2)
         {
             if (IsUserIdValid(player1.UserId, player2.UserId)) return new(false, factory.BuildWrongPlayerResponse());
@@ -30,14 +28,12 @@ namespace Bot
 
             return new(true);
         }
-
         public async Task<ValidationResult> ValidateGameStatus(int gameId)
         {
             if (await IsGameFinishedAsync(gameId)) return new(false, factory.BuildGameIsFinished());
 
             return new(true);
         }
-
         public async Task<ValidationResult> ValidateUsersAndGameAsync(int gameId, long userId)
         {
             if (!await IsGamePlayersIdValidAsync(gameId, userId)) return new(false, factory.BuildGameIsFinished());
@@ -51,6 +47,7 @@ namespace Bot
             
             return new(true);
         }
+
         private bool IsUserIdValid(long validUserId, long userId) =>
             validUserId == userId;
         private async Task<bool> IsGameFinishedAsync(int gameId) =>

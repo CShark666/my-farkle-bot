@@ -33,10 +33,10 @@ namespace Bot
 
                 await botContext.SaveChangesAsync();
 
-                validationResult = validator.ValidateFarkle(game.CurrentTurn.DiceValue, game);
+                var farkleValidation = validator.ValidateFarkle(game.CurrentTurn.DiceValue, game);
 
-                response = !validationResult.IsValid 
-                ? validationResult.Response 
+                response = !farkleValidation.IsValid 
+                ? farkleValidation.Response 
                 : responseFactory.BuildStartTurnResponse(game);
             }
             await bot.SafeEditAndAnswerAsync(
